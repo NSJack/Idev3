@@ -1,0 +1,60 @@
+<?php
+
+/*
+ * 上传图片
+ */
+
+namespace module\user;
+session_start();
+
+class uploadFile extends \core\Controller{
+    function index()
+    {
+        $data = array();
+        $row = $this->model()->get("SELECT * FROM user WHERE id = '{$_SESSION['id']}'");
+        $data['row'] = $row;
+        $this-> fw("/user/user_header",$data);
+    }
+    function uploadHead()
+    {
+        $id = $_SESSION['id'];
+        //上传图片的信息 数组
+        $file = $_FILES['file'];
+        
+        /* 获取后缀名  pathinfo()
+         * PATHINFO_DIRNAME - 目录
+         * PATHINFO_BASENAME - 文件名（含扩展名）
+         *  PATHINFO_EXTENSION - 扩展名
+         *  PATHINFO_FILENAME - 文件名（不含扩展名，PHP>5.2）
+         */
+        $ext = strtolower(pathinfo($file['name'],PATHINFO_EXTENSION));
+        
+        //上传图片重新以时间戳命名
+        $name = time();
+        $newloc = "themes/upload/user/".$name.".".$ext;
+        
+        if($file['error'] > 0)
+        {
+            echo '上传失败';
+        }else
+        {
+            
+            if($ext == 'jpg' || $ext == 'png' || $ext == 'gif')
+                {
+                    $is = move_uploaded_file($file["tmp_name"],$newloc);
+                    if( $is )
+                    {
+                        $sql = "UPDATE `user` SET `file`='{$newloc}' WHERE (`id`='{$id}') LIMIT 1";
+                        $insert_id = $this->model()->update($sql);
+                    }else
+                    {
+                        echo "FALSE";
+                    }
+                } else 
+                {
+                    echo '上传图片不合法';
+                }
+            
+        }
+    }
+}

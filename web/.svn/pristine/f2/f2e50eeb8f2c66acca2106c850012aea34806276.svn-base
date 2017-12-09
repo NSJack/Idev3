@@ -1,0 +1,29 @@
+<?php
+
+namespace module\admin5;
+
+class home extends base{
+
+	public function index(){
+		$data = array();
+		$this->view("/admin5/home/home",$data);
+	}
+
+	public function top(){
+        // session_start();
+		$data = array();
+		$this->view("/admin5/home/top",$data);
+	}
+
+	public function sidebar(){
+		$data = array();
+		$data['select'] = $this->input()->get('select');
+		$this->view("/admin5/home/sidebar",$data);
+	}
+
+	public function main(){
+		$data = array();
+		$this->view("/admin5/home/main",$data);
+	}
+	
+}

@@ -1,0 +1,50 @@
+<?php
+/**
+ * 注册登录页面
+ */
+namespace module\liulin;
+
+class WaresPage extends \core\Controller{
+    
+    function index(){
+        
+    }
+    function warespage(){
+        $data = array();
+        $sql  = "select * from goods where gid = 1";
+        $rows = $this->model()->get($sql);
+        $data['rows'] = $rows;
+        
+        $sql            = "select * from goods_msg order by mid desc";
+        $re             = $this->model()->gets($sql);
+        //$data['rows']   = $rows;//通过data数组就可以在模板里面调用*/
+        $data['re']     =$re;
+
+        $sql            ="select * from goods_imgs where gimg_id=1";
+        $imgs           =$this->model()->get($sql);
+        $data['imgs']   =$imgs;
+
+        $this->fw('/liulin/waresPage', $data);
+    }
+
+
+    function msg(){
+
+        $content = $this->input()->post('content');
+        if( !empty($content) ){
+            $sql = "INSERT INTO goods_msg(content) values ('{$content}')";
+        }else{
+            echo "content not empty";
+        }
+        
+        $gid = $this->model()->insert($sql);
+
+        header("location:/?m=liulin&c=WaresPage&f=waresPage");
+    }
+
+    function writemsg(){
+        $data = array();
+        $this->fw('/liulin/writeMsg', $data);
+    }
+
+}

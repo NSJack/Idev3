@@ -1,0 +1,89 @@
+<script>
+
+$(document).ready(function(){
+
+	var re = /^[a-zA-Z][0-9a-zA-Z]{5,19}/;
+	$('#username').on('blur',function(){
+		if(re.test($('#username').val())){
+			var username = $("#username").val();
+			$.post("/?m=rocinante&c=user&f=is_user_exist_ajax","username="+username,function(data){
+				var obj=JSON.parse(data);
+               	if(obj == "yes"){
+               		$('#u_notice1').text('用户名已被注册，请更换用户名');
+               	}else{
+               		$('#u_notice1').text('用户名符合规范，并且用户还未被注册');
+               	}
+            });
+		}
+		else{
+			$('#u_notice1').text('用户名必须是以字母开头，之后为数字或字母。长度在6-20位之间');
+		}
+	});
+
+	var re4 = /^1[0-9]{10}/;
+	$('#mobile').on('blur',function(){
+		if(re4.test($('#mobile').val())) 
+			$('#u_notice4').text('手机号符合规范');
+		else
+			$('#u_notice4').text('手机号必须是以1开头的11位数字');
+	});
+
+	$('#sms').on('click',function(){
+		var mobile = $("#mobile").val();
+		$.post("/?m=rocinante&c=user&f=sms_verify",{"mobile":mobile},function(data){
+			var obj=JSON.parse(data);
+           	if(obj = 'success'){
+	           	$('#sms').removeClass('btn-info');
+           		$('#sms').addClass('btn-success');      		
+           	}else{
+           		$('#u_notice4').text('手机验证码发送失败');
+           	}
+        });
+
+	});
+
+});
+
+</script>
+<div class="container" style="margin-top: 60px">
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+
+			<div class="panel panel-primary">
+	              <div class="panel-heading">
+	                    <h3 class="panel-title">忘记密码页</h3>
+	              </div>
+	              <div class="panel-body">
+
+	              	<form action="/?m=rocinante&c=user&f=user_revise" method="post" name="useradd">
+
+						  <div class="form-group">
+						    <label for="exampleInputPassword1">用户名</label><?php echo str_repeat('&nbsp', 10) ?><span id="u_notice1"></span>
+						    <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名">
+						  </div>
+
+						  <div class="form-group">
+						    <label for="exampleInputPassword1">手机号</label><?php echo str_repeat('&nbsp', 10) ?><button type="button" class="btn btn-info btn-xs" id="sms">发送验证码</button><?php echo str_repeat('&nbsp', 10) ?><span id="u_notice4"></span>
+						    <input type="text" class="form-control" id="mobile" name="mobile" placeholder="请输入手机号">
+						  </div>
+
+  						  <div class="form-group">
+						    <label for="exampleInputPassword1">手机验证码</label>
+						    <input type="text" class="form-control" id="sms_code" name="sms_code" placeholder="请输入手机验证码">
+						  </div>
+
+						  <div class="col-md-offset-4">
+						  <button type="submit" class="btn btn-primary">忘记密码</button><?php echo str_repeat('&nbsp', 20) ?>
+						  <a class="btn btn-info" href="?m=rocinante&c=user&f=user_login">放弃修改</a>
+						  </div>
+					</form>
+	                    
+	              </div>
+            </div>
+
+
+
+		
+		</div>
+	</div>
+</div>

@@ -1,0 +1,75 @@
+<?php
+/**
+ * 注册登录页面
+ */
+namespace module\liulin;
+
+class Login extends \core\Controller{
+    
+    function index(){
+        
+    }
+    //用户注册页面
+    function register_zc(){
+        $data = array();
+        
+        $this->view('/liulin/register_zc', $data);
+    }
+    //注册验证流程
+    function register_zcsave(){
+        //获取用户名密码
+        $username = $this->input()->post('username');
+        $password1 = md5(md5($this->input()->post('password1')));
+        $password2 = md5(md5($this->input()->post('password2')));
+        //非空判断
+        if(empty($username)||empty($password1)){
+            echo "用户名或密码不能为空";
+        }
+        if ( $password1 != $password2 ) { 
+            echo"两次密码输入不一致";
+        }
+        //如果数据库有相匹配的用户名，则用户名已存在
+        
+        $sql = "SELECT * FROM login_ll where username = '{$username}'";
+        $row = $this->model()->get($sql);
+        if( $row == true ){
+            echo "用户名已存在";
+        }
+        $intime = time();
+        $password = $password1;
+        $sql = "INSERT INTO login_ll( `username`,`password`,`intime` ) values( '{$username}','{$password}','{$intime}' )";
+        $uid = $this->model()->insert($sql);
+        if( $uid > 0 ){
+            echo "注册成功";
+            header("location:/?m=liulin&c=login&f=register");
+        } else {
+            echo "请联系管理员";
+        }
+    }
+    //用户登录页面
+    function register(){
+        $data = array();
+        
+        $this->view('/liulin/regist', $data);
+    }
+    //后台验证流程
+    function register_save(){
+        //获取用户名和密码
+        $username = $this->input()->post('username');
+        $password = md5(md5($this->input()->post('password')));
+        if ( empty($username) ) { 
+            echo"用户名不能为空";
+        }
+        if ( empty($password) ) { 
+            echo"密码不能为空";
+        }
+        $sql = "SELECT * FROM login_ll where username = '{$username}' and password = '{$password}'";
+        $rows = $this->model()->get($sql);
+        //判断用户输入的信息和数据库内的是否一致
+        if ( $rows == true ) {
+            echo "登录成功";
+        }else{
+            echo "用户名或密码错误";
+        }
+    }
+}

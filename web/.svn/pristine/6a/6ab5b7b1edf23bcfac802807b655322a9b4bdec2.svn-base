@@ -1,0 +1,269 @@
+<!-- 附加样式 -->
+<style type="text/css">
+	.msg{ font-size: 13px; }
+	.onError{ color: red; }
+    .onSuccess{ color: green; }
+</style>
+<!-- jQuery验证 -->
+<script type="text/javascript">
+
+    $(document).ready(function(){
+
+  		//为表单的必填文本框添加提示信息（选择form中的所有后代input元素）
+
+  		$("form :input.form-control").each(function(){
+  			//创建元素
+            var formcontrol = $("<strong class='onError'>*</strong>");  
+            //将它追加到文档中
+            $(this).parent().append(formcontrol);
+
+  		});
+
+        //为表单的必填文本框添加相关事件（blur）
+        $("form :input").blur(function(){
+            //注意：这里的this是DOM对象，$(this)才是jQuery对象
+            var $parent = $(this).parent();
+            //删除之前的错误提醒信息
+            $parent.find(".msg").remove();
+
+            var username = $("#username").val();
+            var phone = $("#phone").val();
+
+            //验证“用户名”
+            if($(this).is("#username")){
+
+                //运用jQuery中的$.trim()方法，去掉首位空格
+                if($.trim(this.value) == "" || $.trim(this.value).length < 6){
+                    var errorMsg = " 请输入至少6位的名称！";
+                    
+                    $parent.append("<span class='msg onError'>" + errorMsg + "</span>"); 
+
+                }
+                else{ 
+
+                    //定义两个变量 用于判断之后显示；
+                    var repeat = "用户名已存在";
+                    var ok     = "用户名可用";
+                  
+                     $.ajax({
+                        cache:false,
+                        url:"/?m=tuser&c=Register&f=checkname",
+                        type:"post",
+                        data:{'username':username},
+                        // dataType:"json",
+                        success:function(d){
+                            if (d == 1) {
+                                $parent.find(".onError").remove();
+                                $parent.append("<span class='msg onSuccess'>" + ok + "</span>"); 
+                            }
+                            if (d == 2) {
+                                $parent.append("<span class='msg onError'>" + repeat + "</span>"); 
+
+                            }
+
+                         }
+                        
+                    });                                          
+                }                
+            }          
+
+            //验证手机号
+            if($(this).is("#phone")){
+                if($.trim(this.value) == "" || ($.trim(this.value) != "" && !/^1(3|4|5|7|8)\d{9}$/.test($.trim(this.value)))){
+                    var errorMsg = "请输入正确的手机号！";
+                    $parent.append("<span class='msg onError'>" + errorMsg + "</span>");
+                }
+                else{
+                //定义两个变量 用于判断之后显示；
+
+
+                    var repeat = "手机号已被其他账号绑定";
+                    var ok     = "手机号可用";
+                    $.ajax({
+                        cache:false,
+                        url:"/?m=tuser&c=Register&f=checkphone",
+                        type:"post",
+                        data:{'phone':phone},
+                        // dataType:"json",
+                        success:function(d){
+                            if (d == 1) {
+                                 $parent.find(".onError").remove();
+                                $parent.append("<span class='msg onSuccess'>" + ok + "</span>"); 
+                            }
+                            if (d == 2) {
+                                $parent.append("<span class='msg onError'>" + repeat + "</span>"); 
+                            }
+
+                         }
+                        
+                    }); 
+                    $("#yanzhengma").click(function(){
+                        var $tel = $("#phone").val();
+
+                        $.ajax({
+                                cache:false,
+                                url:"/themes/tpl/tuser/sms.php",
+                                type:"post",
+                                data:{'phone':phone},
+                                // dataType:"json",
+                                success:function(){
+                                   alert("请注意查收验证码");
+
+                                 }                    
+                        }); 
+                    });
+                }
+            }
+            //验证验证码
+            if($(this).is("#yanzheng")){
+
+                //运用jQuery中的$.trim()方法，去掉首位空格
+                if($.trim(this.value).length !== 4 ){
+                    var errorMsg = " 请输入4位验证码！";
+                    
+                    $parent.append("<span class='msg onError'>" + errorMsg + "</span>"); 
+
+                }
+                else{ 
+                    var yanzheng = $("#yanzheng").val();
+                    var phone    = $("#phone").val();
+
+                    console.log(yanzheng);
+                    console.log(phone);
+
+
+                    //定义两个变量 用于判断之后显示；
+                    var shibai = "验证码错误";
+                    var ok     = "验证码正确";
+
+                  
+                     $.ajax({
+                        cache:false,
+                        url:"/?m=tuser&c=Register&f=checkyanzheng",
+                        type:"post",
+                        data:{'phone':phone,'yanzheng':yanzheng},
+                        // dataType:"json",
+                        success:function(d){
+                            if (d == 1) {
+                                $parent.find(".onError").remove();
+                                $parent.append("<span class='msg onSuccess'>" + ok + "</span>"); 
+                            }
+                            if (d == 2) {
+                                $parent.append("<span class='msg onError'>" + shibai + "</span>"); 
+
+                            }
+
+                         }
+                        
+                    });                                          
+                }                
+            }           
+
+            //验证密码
+            if($(this).is("#password")){
+                //运用jQuery中的$.trim()方法，去掉首位空格
+                if($.trim(this.value) == "" || $.trim(this.value).length < 6){
+                    var errorMsg = " 请输入至少6位的密码！";
+                    
+                    $parent.append("<span class='msg onError'>" + errorMsg + "</span>"); 
+                }
+                else{
+                    var okMsg=" 输入正确";
+                    $parent.find(".onError").remove();
+                    $parent.append("<span class='msg onSuccess'>" + okMsg + "</span>");
+                }                
+            }
+
+            //确认密码
+             if($(this).is("#password1")){
+                //运用jQuery中的$.trim()方法，去掉首位空格
+
+                if($.trim(this.value) !== $("#password").val()){
+                    var errorMsg = " 两次密码输入不一致";
+                    // class='msg onError' 中间的空格是层叠样式的格式
+                    $parent.append("<span class='msg onError'>" + errorMsg + "</span>");
+                           
+                }else{
+                    var okMsg=" 密码确认";
+                    $parent.find(".onError").remove();
+                    $parent.append("<span class='msg onSuccess'>" + okMsg + "</span>");
+                }
+             
+            }
+        
+        });
+
+        $("#send").click(function(){
+            //trigger 事件执行完后，浏览器会为submit按钮获得焦点
+            $("form .formcontrol:input").trigger("blur"); 
+            var numError = $("form .onError").length;
+
+            if(numError){
+                return false;
+            }
+            
+            });
+    });
+</script>
+
+<div class="container" style="margin-top: 100px">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-danger">
+                <div class="panel-heading">聚美优品新用户注册</div>
+                <div class="panel-body">
+                	<!-- 用户注册表单信息 -->
+                    <form class="form-horizontal" action="?m=tuser&c=Register&f=regist" method="post">
+				
+                        <div class="form-group">
+                            <label for="username" class="col-sm-2 control-label">用户名</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="username" id="username" placeholder="请输入用户名">
+                                <!-- <span id="user_err"></span> -->
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" class="col-sm-2 control-label">手机号</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="phone" id="phone" placeholder="请输入11位手机号">
+                            </div>
+                        </div>
+
+                        <div class="form-group">       
+                            <div class="col-sm-6 col-md-offset-2">
+                                <input type="text" class="form-control" id="yanzheng" placeholder="验证码">
+                            </div>
+
+                            <p id="yanzhengma"><span class="btn btn-info">获取验证码</span></p>
+                          
+                         </div>
+                    
+                        <div class="form-group">
+                            <label for="password" class="col-sm-2 control-label">密码</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" name="password" id="password" placeholder="请输入密码">
+                            </div>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="password1" class="col-sm-2 control-label">确认密码</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" id="password1" placeholder="请确认密码">
+                            </div>
+                        </div>
+                                          
+                        <div class="form-group">
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <input type="submit" id="send" class="btn btn-success" value="提交注册" />
+                                 <input type="button" class="btn btn-warning" style="margin-left: 10px"  value="直接登录" onClick="location.href='http://ldev3.sodevel.com/?m=tuser&c=Login&f=login'"> 
+                                
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>	
+    </div>
+</div>

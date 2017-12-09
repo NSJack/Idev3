@@ -1,0 +1,42 @@
+<?php
+
+/* 帐户信息
+ * user/UserInfo
+ * vick-wang
+ */
+
+namespace module\user;
+//session_start();
+
+class UserInfo extends \core\Controller
+{
+    function index()
+    {
+        $data = array();
+        $this->fw("/user/user_info",$data);
+    }
+
+    function save()
+    {
+        //表单提交的数据
+        $name     = $this->input()->post("name");
+        $tel      = $this->input()->post("tel");
+        $sex      = $this->input()->post("sex");
+        $hobby    = $this->input()->post("hobby");
+        $message  = $this->input()->post("message");
+        $id       = $this->input()->session("id");
+        $t        = time();
+
+        
+        if(empty($name) || empty($tel) || empty($sex) || empty($hobby) || empty($message))
+        {
+            //数据为空提交失败
+            $this->output()->redirect("?m=user&c=user");
+        }
+
+        $sql ="UPDATE `user` SET `sex`='{$sex}', `hobby`='{$hobby}', `message`='{$message}',  `updatetime`='{$t}' WHERE (`id`='{$id}') LIMIT 1";
+        $insert_id = $this->model()->insert($sql);
+        echo "成功";
+    }
+    
+}

@@ -1,0 +1,38 @@
+<?php
+namespace core\lib;
+/**
+ * 阿里大于发送短信
+ */
+class Sms extends \core\Controller
+{
+
+	function daYu()
+	{
+		$file = PATH . '/core/lib/dayu/TopSdk.php';
+		//$file = "dayu/TopSdk.php";
+		include ($file);
+	}
+	
+
+
+    function sendSms($aliAppkey,$aliSecretKey,$aliUtograph,$aliSmsTemplate,$aliUser,$aliCode,$aliTel)
+    {
+    	$this -> daYu();
+        //include ( PATH . '/core/lib/dayu/TopSdk.php');
+        $c = new TopClient;
+        $c ->appkey = $aliAppkey ;                              //appkey   23774817
+        $c ->secretKey = $aliSecretKey ;   //secretKey    ded34c95b310d8eae33e91a806aebf45
+        $req = new AlibabaAliqinFcSmsNumSendRequest;
+        $req ->setExtend( "" );
+        $req ->setSmsType( "normal" );
+        $req ->setSmsFreeSignName( $aliUtograph );                  //审核通过的短信签名  王世伟
+        $req ->setSmsParam( "{name:'$aliUser',code:'$aliCode'}" );
+        $req ->setRecNum( "$aliTel" );
+        $req ->setSmsTemplateCode( $aliSmsTemplate ); //短信模板  SMS_63260253
+        $resp = $c ->execute( $req );
+        return $resp;
+
+    }
+
+
+}

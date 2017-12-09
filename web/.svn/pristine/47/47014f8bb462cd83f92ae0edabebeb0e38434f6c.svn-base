@@ -1,0 +1,114 @@
+<!--登陆页面-->
+
+<style>
+    .vick_logrow{
+        margin: 5%;
+    }
+    .vick_logrow form{
+        border:1px solid #e5e5e5;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        border-radius:8px;
+        padding-bottom: 3%;
+        margin-top: 5%;
+    }
+    .vick_logrow form .vick_logcenter{
+        border-bottom: 1px solid #e5e5e5;
+        margin-bottom: 5%;
+        padding-bottom: 3%;
+    }
+    
+    
+</style>
+
+
+<script>
+    
+var ok = false;
+
+$(document).ready(function(){
+    $("#password").blur(function(){
+        $.ajax({
+            url:"?m=user&c=Login&f=checkLogin",
+            type:"post",
+            data:{
+                username:$('#name').val(),
+                password:$('#password').val()
+            },
+            success:function (data)
+            {
+                var arr = JSON.parse(data);
+                //$("#checkname").html(arr.info).css("color",'#22ac38');
+
+                
+                switch(arr.info)
+                {
+
+                    case '密码错误':
+                        $("#password").parent().parent().addClass('has-error');
+                        $("#name").parent().parent().addClass('has-error');
+                        break;
+                    case '用户名不存在':
+                        $("#password").parent().parent().addClass('has-error');
+                        $("#name").parent().parent().addClass('has-error');
+                        break;
+                    case '验证成功':
+                        $("#password").parent().parent().removeClass('has-error').addClass("has-success");
+                        $("#name").parent().parent().removeClass('has-error').addClass("has-success");
+                        ok = true;
+                }
+            }
+        });
+    });
+    
+   
+ //提交验证   
+    $('#submitlogin').click(function(){
+        //alert(ok1);
+        if( ok == false )
+        {
+            //alert('登录失败');
+            return false;
+        }else
+        {
+            //alert('登录成功成功');
+        }
+    });
+    
+    
+});
+
+</script>
+
+<
+
+
+<!--注册表单-->      
+    <div class="row vick_logrow ">
+        <form class="form-horizontal col-sm-6 col-sm-offset-3" role="form" action="?m=user&c=Login&f=save" method="post">
+            
+            <div class="text-center vick_logcenter"><h1>聚美优品用户登录</h1></div>
+            <div class="row" style="padding:3% 5%;">
+                <div class="col-sm-offset-1 col-sm-5 text-left"><a style="font-size:20px;text-decoration: none;"  href="?m=user&c=Register">前往注册</a></div>
+                <div class="col-sm-5 text-right"><a style="font-size:20px;text-decoration: none;"  href="?m=user&c=ForgotPassword">忘记密码？</a></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="name" class=" col-sm-3 control-label" >姓名</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" id="name" name="name"  placeholder="请输入姓名 / 电话号码">
+                </div>
+            </div>
+            <div id="checkname"></div>
+            <div class="form-group">
+                <label for="password" class="col-sm-3 control-label">密码</label>
+                <div class="col-sm-7">
+                    <input type="password" class="form-control" id="password" name="password"   placeholder="请输入密码" >
+                </div>
+            </div>
+            <div class="col-sm-6 col-sm-offset-6 text-center">
+                <button type="submit" class="btn btn-primary" id="submitlogin">登录</button>
+                <!--<button class="btn btn-danger" type="reset">取消</button>-->
+            </div>
+
+        </form>
+    </div>

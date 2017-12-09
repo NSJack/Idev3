@@ -1,0 +1,47 @@
+<?php
+namespace core\lib;
+/**
+ *  邮件发送
+ */
+class SendMail
+{
+
+	private $conf = array();
+
+	private $content = array( );
+
+    function __construct()
+    {
+        $this->con = &\core\SoDevel::getInstance();
+    }
+
+	function send($content)
+	{
+		$conf = $this->con->config('key');
+
+		$url = 'http://sendcloud.sohu.com/webapi/mail.send.json';
+		$param = array(
+	            'api_user' => $conf['apiuser'], # 使用api_user和api_key进行验证
+	            'api_key' => $conf['apikey'],
+	            'from' => $conf['from'], # 发信人，用正确邮件地址替代
+	            'fromname' => $content['title'],
+	            'to' => $content['toemail'],# 收件人地址, 用正确邮件地址替代, 多个地址用';'分隔  
+	            'subject' => $content['subject'],
+	            'html' => $content['content'],
+	            'resp_email_id' => 'true'
+	        );
+
+	        $data = http_build_query($param);
+
+	        $options = array(
+	            'http' => array(
+	                'method' => 'POST',
+	                'header' => 'Content-Type: application/x-www-form-urlencoded',
+	                'content' => $data
+	        ));
+	        $context  = stream_context_create($options);
+	        $result = file_get_contents($url, FILE_TEXT, $context);
+	        /*echo "已向邮箱:".$content['toemail']." 发送验证,请查收";*/
+	        return $result;
+	}
+}

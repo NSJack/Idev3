@@ -1,0 +1,151 @@
+<?php
+
+/* 
+ * 用户注册
+ * /wsw/register
+ * vick-wang
+ */
+
+namespace module\wsw;
+
+class Register extends \core\Controller
+{
+    //注册模版
+    function index()
+    {
+        $date = array();
+        $this->fw("/wsw/register",$date);
+    }
+    
+    //表单提交来的 注册用户验证
+    function add()
+    {
+        //获取表单提交的数据
+        $username   = $this->input()->post('name');
+        $tel        = $this->input()->post('tel');
+        $password1  = $this->input()->post('password1');
+        $code  = $this->input()->post('code');
+        $password2  = $this->input()->post('password2');
+        $intime     = date('Y-m-d H:i:s',time());
+        $password   = 0;
+           
+        //检查提交的数据是否为空
+        if(empty($username) || empty($tel) || empty($password1) || empty($password2) ||empty($code) )
+        {
+            //echo "<script>alert('不能为空');</script>";
+            exit("数据不能为空");
+        }
+        
+        //检查2次密码是否一致
+        if($password1 !== $password2)
+        {
+            exit("2次密码不一致");
+        } else 
+        {
+            $password = md5($password1);
+        }
+        
+        //查询用户名是否存在
+        $sql = "SELECT * FROM wsw_user WHERE name = '{$username}'";
+        $row = $this->model()->get($sql);
+        if(is_array($row) == true)
+        {
+            exit('用户名已经存在');
+        }
+        
+        
+        $sql = "INSERT INTO wsw_user (`name`, `password`, `tel`, `intime`) VALUES ('{$username}','{$password}','{$tel}','{$intime}')";
+        $insert_id = $this->model()->insert($sql);
+        
+        //跳转到用户中心
+        $this->output()->redirect('/?m=wsw&c=User&f=index');
+    }
+    
+    
+    
+    //Ajax 对注册表单用户名的验证
+    function checkname()
+    {
+        // 获取传递过来的 user 参数
+        $name = $this->input()->get('user');
+        $sql = "SELECT * FROM wsw_user WHERE name = '{$name}'";
+        $row = $this->model()->get($sql);
+        
+        //判断用户名不可注册的名字
+        if($name == 'admin' || $name == "administrator" || $name == "妈卖批" )
+        {
+            echo "2";
+            exit;
+        }elseif(is_array($row))   //判断用户名是否存在
+        {
+            echo '3';
+            exit;
+        }elseif(empty($name))       //判断用户名是否为空
+        {
+            echo "1";
+            exit;
+        }elseif(!preg_match('/^[a-zA-Z][a-zA-Z0-9]{3,15}$/', $name))   //正则判断用户名
+        {
+            echo '4';
+            exit;
+        }else{
+            echo '5';               //成功
+            exit;
+        }
+    }
+    
+    //Ajax 对注册表单电话的验证 
+    function checktel()
+    {
+        //电话 获取传递过来的 cktel 参数
+        $cktel = $this->input()->get("cktel");
+        
+        //电话号是否已被注册
+        $sql ="SELECT * FROM wsw_user WHERE tel = '{$cktel}' LIMIT 1";
+        $is = $this->model()->get($sql);
+        
+        if(is_array($is) == true )
+        {
+            echo '3';    //电话号码已经被注册
+            exit;
+        }
+        
+        
+        if(empty($cktel))       //判断电话号不能为空
+        {
+            echo "1";
+            exit;
+        }elseif(!preg_match('/^0?(13|14|15|17|18)[0-9]{9}$/', $cktel))         //判断电话号是否正确
+        {
+            echo "2";
+            exit;
+        } else {
+            echo "4";    //成功
+            exit;
+        }
+    }
+    
+    //Ajax验证码
+    function checkcode()
+    {
+        //get 过来的数据
+        $name = $this->input()->get("name");
+        $tel = $this->input()->get("tel");
+        $code = $this->input()->get("code");
+        
+        //取数据库中的code
+        $sql = "SELECT code FROM wsw_tel WHERE tel ='{$tel}'";
+     
+        $row = $this->model()->get($sql);
+        //var_dump($row['code']);var_dump($code);exit;
+        if($code == $row['code'])
+        {
+            echo '1';       //验证成功
+            exit;
+        } else {
+            echo '2';       //验证失败
+            exit;
+        }
+    }
+    
+}

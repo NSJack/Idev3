@@ -1,0 +1,113 @@
+<!---登陆页面----->
+<script>
+    
+var ok = false;
+
+$(document).ready(function(){
+    $("#password").blur(function(){
+        $.ajax({
+            url:"?m=user&c=login&f=checkLogin",
+            type:"post",
+            data:{
+                username:$("#name").val(),
+                password:$("#password").val()
+            },
+            success:function (data)
+            {
+                switch(data)
+                {
+                    case '1':
+                        $("#password").parent().parent().addClass('has-error');
+                        $("#name").parent().parent().addClass('has-error');
+                        break;
+                    case '2':
+                        //$("#password").html("").css("color",'#22ac38');
+                        $("#password").parent().parent().removeClass('has-error').addClass("has-success");
+                        $("#name").parent().parent().removeClass('has-error').addClass("has-success");
+                        ok = true;
+                }
+            }
+        });
+    });
+    
+   
+ //提交验证   
+    $('#submitlogin').click(function(){
+        //alert(ok1);
+        if( ok == false )
+        {
+            //alert('登录失败');
+            return false;
+        }else
+        {
+            //alert('登录成功成功');
+        }
+    });
+    
+    
+});
+
+</script>
+
+<div class="row">
+<div class="col-sm-3 col-sm-offset-5">
+<button class="btn btn-info btn-lg" data-toggle="modal" data-target="#loginModal" >登录</button>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModal" style="padding-top:5%;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h2 class="modal-title text-center" id="myModalLabel">聚美优品用户登录</h2>
+      </div>
+      <div class="modal-body"  style="padding: 20px 15px;">
+       
+    <!--注册表单-->      
+        <div class="row vick_row">
+            <form class="form-horizontal" role="form" action="?m=user&c=login&f=save" method="post">
+                <div class="row" style="padding:3% 5%;">
+                    <div class="col-sm-offset-1 col-sm-5 text-left"><a style="font-size:20px;"  href="?m=user&c=register">前往注册</a></div>
+                    <div class="col-sm-5 text-right"><a style="font-size:20px;"  href="?m=user&c=register">忘记密码？</a></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name" class=" col-sm-3 control-label" >姓名</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="name" name="name"  placeholder="请输入姓名 / 电话号码">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="col-sm-3 control-label">密码</label>
+                    <div class="col-sm-7">
+                        <input type="password" class="form-control" id="password" name="password"   placeholder="请输入密码" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-4 col-sm-4">
+                        <div class="checkbox">
+                            <!--<label>
+                                <input type="radio" value="radio" name="radio"> 请记住我
+                            </label>-->
+                        </div>
+                    </div>
+                </div>
+
+                    <!--<div class="col-sm-offset-6 col-sm-2 text-right">
+                        <button type="submit" class="btn btn-success">登录</button>
+                        <button type="reset" class="btn btn-info">重置</button>
+                    </div>-->
+                    <div class="col-sm-7 col-sm-offset-5 text-center">
+                        <button type="submit" class="btn btn-primary" id="submitlogin">登录</button>
+                        <button class="btn btn-danger" data-dismiss="modal">取消</button>
+                    </div>
+
+            </form>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

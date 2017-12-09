@@ -1,0 +1,33 @@
+<!---管理员页面-->
+
+<div class="container" style="width: 85%;">
+    <h2>管理员</h2>
+    <p>　　</p>                              
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>用户名</th>
+                <th>电话</th>
+                <th>最新登录</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach($rows as $item):?>
+            <tr>
+                <td><?php echo $item['id'] ?></td>
+                <td><?php echo $item['name'] ?></td>
+                <td><?php echo $item['tel'] ?></td>
+                <td><?php echo $item['updatetime'] ?></td>
+                <td>
+                    
+                    <a href="/?m=user&c=User&f=del&id=<?php echo $item['id']; ?>">
+                        <button type="button" class="btn btn-danger" onclick="confirm('确定要删除吗');">删除</button>
+                    </a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>

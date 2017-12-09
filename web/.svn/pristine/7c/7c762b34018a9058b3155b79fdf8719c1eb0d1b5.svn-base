@@ -1,0 +1,12 @@
+<?php
+
+namespace module\user;
+
+class Home extends \core\Controller
+{
+    function index()
+    {
+        $data = array();
+        $this-> fw("/user/login",$data);
+    }
+}

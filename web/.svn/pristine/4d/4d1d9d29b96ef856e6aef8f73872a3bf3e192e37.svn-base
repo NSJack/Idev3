@@ -1,0 +1,28 @@
+<?php
+
+namespace module\tuser;
+
+class Register extends \core\Controller{
+
+	function register(){
+
+		$data = array();
+
+		$this->fw('/tuser/register',$data);
+
+
+	}
+
+	function check(){
+
+	
+		var_dump($_POST);
+	}
+
+	function save(){
+		$content = $this->input()->post('content');
+		$sql = "insert into gbook (content) values ('{$content}')";
+		$gid = $this->model()->insert($sql);
+		header("location:/?m=gbook");
+	}
+}

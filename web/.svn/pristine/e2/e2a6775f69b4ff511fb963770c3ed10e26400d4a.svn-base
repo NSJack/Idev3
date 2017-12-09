@@ -1,0 +1,15 @@
+<h3>上传头像</h3>
+<div class="row">
+    <div class="col-sm-4 col-sm-offset-3">
+        <div class="thumbnail ">
+            <img src="<?php echo $row['file'] ?>" alt="用户头像"  style="width: 200px;height: 200px;">
+        </div>
+    
+        <form action="?m=user&c=UploadFile&f=uploadHead" method="post"enctype="multipart/form-data">
+        <label for="file">上传头像:</label>
+        <input  type="file" name="file" id="file" /> 
+        <br />
+        <input class="btn btn-primary" type="submit" name="submit" value="提交" />
+        </form>
+    </div>
+</div>

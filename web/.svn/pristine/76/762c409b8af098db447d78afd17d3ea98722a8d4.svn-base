@@ -1,0 +1,17 @@
+<?php
+
+namespace module\admin;
+
+Class Option extends admin{
+
+	function index(){
+		$data=array();
+		 $this->afw('/admin/option',$data);
+	}
+
+}
+
+
+
+
+	

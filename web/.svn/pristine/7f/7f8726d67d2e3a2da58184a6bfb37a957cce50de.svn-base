@@ -1,0 +1,78 @@
+<?php
+
+/* 用户地址
+ * user/User
+ * vick-wang
+ */
+
+namespace module\user;
+
+
+class UserAddress extends \core\Controller
+{
+    function index()
+    {
+        $data = array();
+        $id = $this->input()->session("id");
+
+        //查询语句 用户信息表 user_info
+        $row = $this->model()->get("SELECT * FROM user_info WHERE user_id = '{$id}'");
+        $data['row'] = $row;
+
+        //省的信息
+        
+        $region_row = $this->model()->gets("SELECT * FROM hd_district WHERE level = 1");
+        $data['region_row'] = $region_row;
+        
+        
+        
+        $this->fw("/user/user_address",$data);
+    }
+    
+    function address()
+    {
+        $name       =  $this->input()->post("addres_name");
+        $tel        =  $this->input()->post("addres_tel");
+        $province   =  $this->input()->post("province");
+        $city       =  $this->input()->post("city");
+        $district   =  $this->input()->post("district");
+        $message    =  $this->input()->post("add_message");
+        $t          = time();
+        //var_dump($province);
+        $parent_id  = $this->input()->post('father_id');
+        $level       = $this->input()->post('level');
+        
+        $val = array();
+        $sql = "SELECT * FROM `hd_district` WHERE `parent_id` = '{$parent_id}' and level = '{$level}'";
+        $province_row = $this->model()->gets($sql);
+        //var_dump($province_row);exit;
+        foreach ($province_row as  $key => $value) {
+         
+            echo($value['id'].",");
+            //echo($value['name'].",");
+            //$av['id'] = $value['id'] ;
+            //$av['name'] = $value['name'] ;
+            //var_dump($av);
+        }
+
+
+        
+
+    }
+    function city()
+    {
+        $parent_id  = $this->input()->post('father_id');
+        $level       = $this->input()->post('level');
+        
+        $sql = "SELECT * FROM `hd_district` WHERE `parent_id` = '{$parent_id}' and level = 3";
+        $city_row = $this->model()->gets($sql);
+        //var_dump($city_row);exit;
+
+        foreach ($city_row as  $value) {
+           
+            echo($value['name'].",");
+
+        }
+    }
+    
+}

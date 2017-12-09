@@ -1,0 +1,64 @@
+$(function() {
+	//点击注册
+	$("#regBtn").click(function(){
+		location.assign("/?m=jjuser&c=Reg&f=showReg");
+	})
+
+	//点击登陆
+	$("form").submit(function () {
+		var account=$("#account").val();
+		var password=$("#password").val();
+
+		var basicChk=true;
+
+		if(account.length<6){
+			basicChk=false;
+			info('account','red',"账号必须是6位以上",true)
+		}else{
+			info('account','green',"",false)
+		}
+		
+		if(password.length<6){
+			basicChk=false;
+			info('password','red',"密码必须是6位以上",true)
+		}else{
+			info('password','green',"",false)
+		}
+
+		if(!basicChk){
+			return false;
+		}
+		var chk=0;
+		$.ajax({
+			url:"/?m=jjuser&c=Login&f=chkLogin",//提交到哪个url网址
+			type:"POST",
+			data:{'account':account,'password':password},//发送给服务器的数据
+			async:false,
+			success:function (d) {
+				console.log(d);
+				if(d=="1"){
+					chk=1;
+					info('account','green',"用户名可用",true);
+				}else if(d=="0"){
+					chk=0;
+					info('account','red',"用户名不存在",true);
+				}else if(d=="2"){
+					chk=2;
+					info('password','red',"密码错误",true);
+				}else if(d=="3"){
+					chk=3;
+				}
+							
+			},//success结束
+
+		})	//ajax结	
+		
+		
+		if (chk!=3){
+			return false;
+		}
+			
+	})
+
+})
+	

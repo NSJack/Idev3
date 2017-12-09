@@ -1,0 +1,60 @@
+@CHARSET "UTF-8";
+/*body{
+	padding:0;
+	margin:0;
+}*/
+
+#top {
+	background:#ccc;
+}
+
+#top h1 {
+	padding:0;
+	margin:0;
+	float:left;
+}
+
+#top ul {
+	float:left;
+	padding:52px 0 0 30px;
+}
+
+#top ul li a {
+	width:58px;
+	height:33px;
+	line-height:33px;
+	display:block;
+	font-weight:bold;
+	color:#369;
+}
+
+#top p {
+	float:right;
+	padding:52px 20px 0 0px;
+	height:33px;
+	line-height:33px;
+}
+
+#sidebar {
+	background:#f7fbfc;
+}
+
+#sidebar dl {
+	padding:20px;
+	text-indent:2px;
+}
+#sidebar dl dt {
+	font-size:14px;
+	color:#3b6ea5;
+	font-weight:bold;
+	border-bottom:1px solid #ccc;
+	padding:5px 0 ;
+	margin:5px 0;
+}
+#sidebar dl dd {
+	height:22px;
+	line-height:22px;
+}
+#sidebar dl dd a {
+	color:#333;
+}

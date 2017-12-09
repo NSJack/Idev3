@@ -1,0 +1,143 @@
+<?php
+namespace core;
+/**
+ * 输入管理类
+ */
+class Input{
+    
+    protected $sessionId = false;
+
+    /**
+     * get方法
+     * @param string $key 获取get提交的数据
+     * @param int    $set 可取值 1 2
+     * @return mixed
+     */
+    function get( $key = false, $set = '' ){
+        switch ($set) {
+            case '1':
+            if( !$key ){
+                return $_GET;
+            }else{
+                return isset( $_GET[$key] ) ? $_GET[$key] : false;
+            }
+            case '2':
+            if( !$key ){
+                return $this->filter($_GET, 3);
+            }else{
+                return $this->filter(isset( $_GET[$key] ), 3) ? $this->filter($_GET[$key], 3) : false;
+            }
+            default:
+            if( !$key ){
+                return $this->filter($_GET);
+            }else{
+                return $this->filter(isset( $_GET[$key] )) ? $this->filter($_GET[$key]) : false;
+            }
+        }
+    }
+
+    /**
+     * post方法
+     * @param string $key 获取post提交的数据
+     * @param int    $set 可取值 1 2
+     * @return mixed
+     */
+    function post( $key = false,  $set = '' ){
+        switch ($set) {
+            case '1':
+            if( !$key ){
+                return $_POST;
+            }else{
+                return isset( $_POST[$key] ) ? $_POST[$key] : false;
+            }
+            case '2':
+            if( !$key ){
+                return $this->filter($_POST, 3);
+            }else{
+                return $this->filter(isset( $_POST[$key] ), 3) ? $this->filter($_POST[$key], 3) : false;
+            }
+            default:
+            if( !$key ){
+                return $this->filter($_POST);
+            }else{
+                return $this->filter(isset( $_POST[$key] )) ? $this->filter($_POST[$key]) : false;
+            }
+        }
+    }
+
+    /**
+     * 过滤表单输入 防sql注入,xss攻击
+     * @author 小诺心
+     * @param string $str 要处理的数据
+     * @param int    $set 可取值 1 2 3
+     * @return mixed
+     */
+    function filter( $str, $set = '' ){
+        $rule_a = "/\/|\~|\!|\\$|\%|\^|\&|\*|\(|\)|\+|\{|\}|\:|\<|\>|\?|\[|\]|\,|\/|\;|\'|\`|\=|\\\|\|/";
+        $rule_b = "/\/|\~|\!|\@|\#|\\$|\%|\^|\&|\*|\(|\)|\_|\+|\{|\}|\:|\<|\>|\?|\[|\]|\,|\.|\/|\;|\'|\`|\-|\=|\\\|\|/";
+        switch ($set) {
+            case '1':
+            $str = preg_match($rule_a, $str);
+            return $str;
+            case '2':
+            $str = preg_match($rule_b, $str);
+            return $str;
+            case '3':
+            $str = trim($str);
+            $str = strip_tags($str);
+            $str = stripslashes($str);
+            $str = addslashes($str);
+            $str = rawurldecode($str);
+            $str = quotemeta($str);
+            $str = htmlspecialchars($str);
+            $str = preg_replace($rule_b, "" , $str);
+            return $str;
+            default:
+            $str = htmlspecialchars($str);
+            $str = preg_replace($rule_a, "" , $str);
+            return $str;
+        }
+    }
+
+    /**
+     * 供应外部获取SESSION_ID时使用
+     * @return [type] [description]
+     */
+    function getSessionId(){
+        return $this->sessionId;
+    }
+
+    /**
+     * 读写SESSION的方法
+     * @param  boolean $key   [键，如果不传参，返回所有SESSION的数组]
+     * @param  boolean $value [值，如果想写入SESSION，应该传参]
+     * @return [array/string]         [....]
+     */
+    function session( $key = false, $value = false ){
+        if( !$this->sessionId ){
+            session_start();
+            $this->sessionId = session_id();
+        }
+        // 如果value !== false 表示设置SESSION的值
+        if( $value !== false && $key !== false ){
+            $_SESSION[ $key ] = $value;
+            return $_SESSION[ $key ];
+        }
+
+        //取值
+        if( !$key ){
+            return $_SESSION;
+        }else{
+            return isset( $_SESSION[$key] ) ? $_SESSION[$key] : false;
+        }
+    } 
+
+/*
+清空session
+作者：姜君
+时间20170524
+ */
+    function clearSession(){
+        $_SESSION=array();
+    }    
+}

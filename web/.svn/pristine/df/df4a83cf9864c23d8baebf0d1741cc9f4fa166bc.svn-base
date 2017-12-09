@@ -1,0 +1,26 @@
+<?php
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+namespace module\user;
+
+
+class ForgotPassword extends \core\Controller
+{
+    //忘记密码模版
+    function index()
+    {
+        $date = array();
+        $this->fw("/user/forgotPassword",$date);
+    }
+    
+    function two()
+    {
+        $date = array();
+        $this->fw("/user/forgotPasswordTwo",$date);
+    }
+}

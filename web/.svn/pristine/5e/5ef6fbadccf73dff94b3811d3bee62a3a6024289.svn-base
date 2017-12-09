@@ -1,0 +1,12 @@
+<?php
+
+namespace module\wsw;
+
+class Home extends \core\Controller
+{
+    function index()
+    {
+        $data = array();
+        $this-> fw("/wsw/login",$data);
+    }
+}

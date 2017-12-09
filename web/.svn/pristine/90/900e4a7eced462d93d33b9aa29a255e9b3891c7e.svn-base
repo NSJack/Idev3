@@ -1,0 +1,174 @@
+	$(function() {
+		//用于校验的json数组，值要全为1，才表示全部通过。
+		chkArr={"uname":"0","mobile":"0","verifyCode":"0","password":"0","confirm":"0"};
+		
+		//失去焦点事件开始
+		$("#regForm input").blur(function(){
+			id=$(this).attr('id');//判断当前是哪个输入框失去焦点
+			//用户名6到16位，必须以字母开头
+			if( id=='uname' ){
+				var patt=/^[a-z][a-z0-9_]{5,17}$/;
+				msg='用户名必须是6-18位的字母数字或下划线，且以字母开头'
+			}	
+			if( id=='mobile' ){
+				var patt=/^1[34578]\d{9}$/;
+				var msg='手机号格式不正确'
+			}
+			//验证码只能是4位纯数字
+			if( id=='verifyCode' ){
+				var patt=/^[0-9]{4}$/;
+				var msg='验证码必须是4位数字'
+			}
+			//密码可以是字母 数字 和特殊字符，6到16位。
+			if( id=='password' ){
+				var patt=/^[\w~!@#$%^&*()_+`\-={}:";'<>?,.\/]{6,16}$/;
+				var msg='密码必须是6到16位字母数字或特殊字符';
+			}
+			
+			//把检查的结果，放到chkArr这个json数组里。数组是键和input的id对应。
+			//参数意义依次是：当前对象，正则表达式，错误提示信息
+			chkArr[id]=check($(this),patt,msg);	
+	
+			//在用户名已通过正则验证的前提下，再验证唯一性
+			if(id=='uname' && chkArr['uname']==1){
+				only=unique('uname',$(this).val())
+				if(!only){
+					info("uname",'red',"用户名已存在",true);
+					chkArr['uname']=0;
+				}else{
+					info("uname",'green',"用户名可用",true);
+					chkArr['uname']=1;
+				}				
+			}
+			
+			//在手机已通过正则验证后，验证唯一
+			//代码和验证用户名几乎一样
+			if(id=='mobile' && chkArr['mobile']==1){
+				only=unique('mobile',$(this).val())
+				if(!only){
+					info("mobile",'red',"手机号已存在",true);
+					chkArr['mobile']=0;
+				}else{
+					info("mobile",'green',"手机号可用",true);
+					chkArr['mobile']=1;
+				}			
+			}			
+			//测试用
+			$("#test").html(JSON.stringify(chkArr));
+		})//失去焦点事件结束
+	
+		//得到焦点 就隐藏提示框
+		$("#regForm input").focus(function(){
+			id=$(this).attr('id');
+			info(id,'red',"",false);
+		})//得到焦点事件结束
+		
+		//验证是否唯一函数
+		//通过拿到字段名，和值这两个参数。用ajax去后台校验是否唯一。
+		function unique(field,value){
+			var re;
+			$.ajax({
+				url:"/?m=jjuser&c=Reg&f=uniqueChk",//提交到哪个url网址
+				type:"POST",//不加这个参数，默认是get
+				data:{'field':field,'value':value},//发送给服务器的数据
+				async:false,//必须异步，要不然拿不到返回值
+				//成功后执行
+				success:function (d) {
+					var obj=JSON.parse(d);
+					if(!obj.only){
+						re=false;//如果在这里return false 外层的unique函数，得不到
+					}else{
+						re=true;
+					}
+				},
+			})	
+			return re;
+		}//验证是否唯一函数 结束
+		
+		//正则验证
+		function check(ele,patt,msg) {
+			uInput=ele.val();//拿到用户输入
+			id=ele.attr('id');
+
+			if(!patt.test(uInput)){//正则验证不通过，显示提示框
+				info(id,'red',msg,true);
+				return 0;//用于存到chkArr数组里
+			}else{
+				msg="可以使用";
+				info(id,'green',msg,true);
+				return 1;
+			}
+		}//验证函数结束
+		
+		//显示信息函数
+		function info (id,icon,msg,show) {
+			//拼接选择器，不先拼接的话会出错。
+			str=id+" p";		
+			//设置提示信息
+			$("#regForm ."+str).html(msg);
+			
+			if(icon=='green'){//绿色通过图标
+				str=id+" span";
+				$("#regForm ."+str).html("√");
+				$("#regForm ."+str).css({'background':'green'});
+			}else{//红色不通过图标
+				str=id+" span";
+				$("#regForm ."+str).html("!");
+				$("#regForm ."+str).css({'background':'#f83450'});
+				
+			}
+		
+			//显示还是隐藏
+			if(show){
+				$("#regForm ."+id).css({'visibility':'visible'});
+				//显示时加个动画效果
+				$("#regForm ."+str).stop().animate({'width':'40px'},900,function () {
+					$(this).animate({'width':'20px'},300)
+				});
+			}else{
+				$("#regForm ."+id).css({'visibility':'hidden'});
+			}
+		}
+		
+		//测试用
+		$("#btntest").click(function () {
+			info('uname','green','显示测试',true);
+		})
+
+		//提交注册按钮
+		$("form").submit(function () {
+			chkOk=1;//校验总结果，默认成功
+			
+			//触发每个输入框的校验
+			$("#uname").trigger("blur");
+			$("#mobile").trigger("blur");
+			$("#verifyCode").trigger("blur");
+			$("#password").trigger("blur");
+	
+			//最后提交时才校验两次密码输入
+			pw=$("#password").val()
+			pw2=$("#confirm").val()
+			
+			if(pw!=pw2 && pw!=""){
+				info('confirm','red','两次输入的密码不一致',true);
+				chkArr['confirm']=0;
+			}else{
+				info('confirm','green','',false);
+				chkArr['confirm']=1;				
+			}				
+	
+			//检查每个校验结果
+			$.each(chkArr,function(key,val){
+				if (val==0) {
+					chkOk=0;//只要有一个校验不通过，总结果就不通过
+					//return false;  这样写不能阻止提交，可能原因是在each循环的层级里
+				}
+			})
+
+			if (chkOk==0) {
+				return false;
+			}
+			
+		})//提交注册按钮 结束
+		
+	})

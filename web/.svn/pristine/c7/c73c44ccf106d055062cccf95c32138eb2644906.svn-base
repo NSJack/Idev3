@@ -1,0 +1,28 @@
+<?php
+
+/* 用户中心
+ * user/user
+ * vick-wang
+ */
+
+namespace module\user;
+session_start();
+
+class User extends \core\Controller
+{
+    function index()
+    {
+        $data = array();
+        $id = $_SESSION['id'];
+        //查询语句
+        $sql = "SELECT * FROM `user` WHERE id = '{$id}' LIMIT 1";
+        $row = $this->model()->get($sql);
+        
+        //保存在$data里面
+        $data['row'] = $row;
+        
+        
+        $this->fw("/user/user",$data);
+    }
+    
+}

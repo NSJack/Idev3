@@ -1,0 +1,42 @@
+<?php
+
+/* 用户中心
+ * user/User
+ * vick-wang
+ */
+
+namespace module\user;
+session_start();
+
+class User extends \core\Controller
+{
+    function index()
+    {
+        $data = array();
+        $id = $_SESSION['id'];
+        //查询语句
+        $sql = "SELECT * FROM `user` WHERE id = '{$id}' LIMIT 1";
+        $row = $this->model()->get($sql);
+        
+        //保存在$data里面
+        $data['row'] = $row;
+        
+        
+        $this->fw("/user/user",$data);
+    }
+
+    function Address()
+    {
+        $name = $this->input()->post("addres_name");
+        $tel  = $this->input()->post("addres_tel");
+        $tel  = $this->input()->post("addres_tel");
+        $tel  = $this->input()->post("province");
+        $tel  = $this->input()->post("city");
+        $tel  = $this->input()->post("district");
+        $tel  = $this->input()->post("add_message");
+        $t    = time();
+        var_dump($_POST);
+    }
+
+    
+}

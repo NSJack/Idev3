@@ -1,0 +1,17 @@
+<?php
+/*1
+Ê×Ò³
+*/
+namespace module\liulin;
+
+class Ind extends \core\Controller{
+
+    function index(){
+        $data = array();
+        $this->fw('/liulin/index', $data);
+    }
+
+}  
+
+
+?>

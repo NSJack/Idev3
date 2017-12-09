@@ -1,0 +1,42 @@
+<!---用户中心----->
+
+<style>
+    .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus{
+        background-color: #009900;
+        border-color: #009900;
+        color:#fff;
+    }
+    .nav {
+        height: 44px;
+    }
+    .nav li a{
+        color:#fff;
+    }
+    .nav li a:hover{
+        background-color: #009900;
+        border-color: #009900;
+    }
+    .tab-content{
+        min-height: 400px;
+        background-color: #f5f5f5;
+    }
+    
+</style>
+<div>
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">首页</a></li>
+    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">收藏车辆</a></li>
+    <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">收藏车辆</a></li>
+    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">管理员信息(练习熟悉框架)</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="home">首页</div>
+    <div role="tabpanel" class="tab-pane" id="messages">收藏车辆</div>
+    <div role="tabpanel" class="tab-pane" id="settings">收藏车辆</div>
+    <div role="tabpanel" class="tab-pane" id="profile"><?php include ('user_list.php'); ?></div>
+  </div>
+
+</div>

@@ -1,0 +1,28 @@
+<?php
+session_start();
+//短信验证
+include ('dayu/TopSdk.php');
+
+//短信的验证码 随机4位数字
+$roundcode = rand(1000,9999);
+
+$user = $_POST['name'];
+$tel = $_POST['tel'];
+$postcode = $_POST['code'];
+$time = time();
+
+//阿里大于相关
+$c = new TopClient;
+$c ->appkey = "23774817" ;                              //appkey
+$c ->secretKey = "ded34c95b310d8eae33e91a806aebf45" ;   //secretKey
+$req = new AlibabaAliqinFcSmsNumSendRequest;
+$req ->setExtend( "" );
+$req ->setSmsType( "normal" );
+$req ->setSmsFreeSignName( "王世伟" );                  //审核通过的短信签名
+$req ->setSmsParam( "{name:'$user',code:'$roundcode'}" );
+$req ->setRecNum( "$tel" );
+$req ->setSmsTemplateCode( "SMS_63260253" );
+$resp = $c ->execute( $req );
+
+
+

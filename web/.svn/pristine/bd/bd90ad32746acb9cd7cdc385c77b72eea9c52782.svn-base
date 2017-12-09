@@ -1,0 +1,142 @@
+<?php
+
+namespace module\admin5;
+
+include 'Validate.class.php';
+
+class adminuser extends base{
+
+	function __construct(){
+		parent::__construct();
+		$check = $this->getPermission(__CLASS__);
+		if(!$check){
+			echo "<script type='text/javascript'>alert('该用户没有处理该模块的权限');</script>";
+			exit();
+		}
+	}
+
+	function index(){
+		$data = array();
+		$this->view("/admin5/main", $data);
+	}
+
+	function user_list(){
+		$data = array();
+		$sql = "SELECT m.*,l.level_name FROM `qzw_manage` as m LEFT JOIN `qzw_level` as l ON m.level = l.lid";
+		$result = $this->model()->gets($sql);
+		if($result){
+			$data['title'] = "管理员列表";
+			$data['show'] = true;
+			$data['manage_list'] = $result;
+			$this->view("/admin5/manage", $data);
+		}else{
+			echo "未有管理员记录";
+		}
+	}
+
+	function user_add(){
+		$data = array();
+		$data['title'] = "新增管理员";
+		$data['add'] = true;
+		$sql = "SELECT * FROM `qzw_level`";
+		$data['level_list'] = $this->model()->gets($sql);
+		$this->view("/admin5/manage", $data);
+	}
+
+	function user_insert(){
+		if(isset($_POST['send'])){
+			$username = $this->input()->post('admin_user');
+			$password = $this->input()->post('admin_pass');
+			$passwordrep = $this->input()->post('admin_pass_rep');
+			$level = $this->input()->post('level');
+			// if(\Validate::checkUser($username)) die('用户名必须是以字母开头，之后为数字或字母。长度在6-20位之间');
+			// if(\Validate::checkPass($password)) die('密码必须是数字或字母。长度在6-20位之间');
+			if(\Validate::checkEquals($password,$passwordrep)) die('两次密码输入不一致');
+			$sql = "SELECT * FROM `qzw_manage` WHERE `username` = '$username'";
+			$result = $this->model()->get($sql);
+			if($result){
+				$message = "$username 已经被占用";
+				$pageName = '管理员添加页';
+				$url = url('admin5','adminuser','user_add');
+			}else{
+				$password = password_hash($password, PASSWORD_DEFAULT);
+				$sql = "INSERT INTO `qzw_manage` (`username`,`password`,`level`,`reg_time`) VALUES('$username','$password',$level,now())";
+				$mid = $this->model()->insert($sql);
+				if($mid){
+					$message = "$username 添加成功";
+					$pageName = '管理员列表页';
+					$url = url('admin5','adminuser','user_list');
+				}else{
+					$message = "$username 添加失败";
+					$pageName = '管理员添加页';
+					$url = url('admin5','adminuser','user_add');
+				}
+			}
+			$this->jump($message,$pageName,$url);
+		}
+	}
+
+	function user_update(){
+		$mid = $this->input()->get('mid');
+		$sql = "SELECT * FROM `qzw_manage` WHERE `mid` = '$mid'";
+		$result = $this->model()->get($sql);
+		if($result){
+			$data = array();
+			$data['title'] = "修改管理员";
+			$data['update'] = true;
+			$data['mid'] = $mid;
+			$data['username'] = $result['username'];
+			$data['level'] = $result['level'];
+			$sql = "SELECT * FROM `qzw_level`";
+			$data['level_list'] = $this->model()->gets($sql);
+			$this->view("/admin5/manage", $data);
+			return;
+		}else{
+			die("相关用户不存在");
+		}		
+	}
+
+	function user_revise(){
+		if(isset($_POST['send'])){
+			$mid = $this->input()->post('id');
+			$username = $this->input()->post('admin_user');
+			$password = $this->input()->post('admin_pass');
+			$level = $this->input()->post('level');
+			// if(\Validate::checkUser($username)) die('用户名必须是以字母开头，之后为数字或字母。长度在6-20位之间');
+			// if(\Validate::checkPass($password)) die('密码必须是数字或字母。长度在6-20位之间');
+			$sql = "SELECT * FROM `qzw_manage` WHERE `username` = '$username' AND `mid` = '$mid'";
+			$result = $this->model()->get($sql);
+			if($result){
+				$password = password_hash($password, PASSWORD_DEFAULT);
+				$sql = "UPDATE `qzw_manage` SET `password`='$password' , `level`='$level' WHERE `username` = '$username' AND `mid` = '$mid'";
+				$mid = $this->model()->update($sql);
+				if($mid){
+					$message = "用户修改成功";
+				}else{
+					$message = "用户修改失败";
+				}
+			}else{
+				$message = "非法操作";
+			}
+			$pageName = '管理员列表页';
+			$url = url('admin5','adminuser','user_list');
+			$this->jump($message,$pageName,$url);
+		}
+	}
+
+	function user_delete(){
+		$mid = $this->input()->get('mid');
+		$sql = "DELETE FROM `qzw_manage` WHERE `mid` = '$mid'";
+		$result = $this->model()->delete($sql);
+		if($result){
+			$message = "删除用户成功";
+		}else{
+			$message = "删除用户失败";
+		}
+		$pageName = '管理员列表页';
+		$url = url('admin5','adminuser','user_list');
+		$this->jump($message,$pageName,$url);
+	}
+
+	
+}

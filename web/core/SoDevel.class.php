@@ -1,0 +1,179 @@
+<?php
+namespace core;
+/**
+ * 系统核心类，请勿随意更改
+ *
+ * @author [wl] 20161128
+ */
+class SoDevel{
+
+    private static $_instance;
+    private static $_map = array();
+    public $Input;
+    public $config; //存储配置项
+
+    private function __construct(){}
+    private function __clone(){}
+
+    /**
+     * 单例构造方法
+     * 在任何位置调用该方法，都将获得一个核心对象
+     * @return [type] [description]
+     */
+    static function &getInstance(){
+        if( !self::$_instance ){
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+
+    /**
+     * 除入口页之外，不应该在任何地方调用该方法。
+     * @return [type] [description]
+     */
+    public function init(){
+        spl_autoload_register('core\SoDevel::autoload');
+
+        // 取得系统配置
+        $config = include(PATH . '/config/config.php');
+        $settings = include( PATH . '/config/settings.php' );
+        # 加载公共函数库
+        include( PATH . '/core/global.func.php' );        
+        $this->config = array_merge($config, $settings);
+
+        $this->Input = new \core\Input();
+        $this->Model = new \core\Model( $this->config('db') );
+        $this->Output = new \core\Output();
+        $this->Cache = &\core\lib\Cache::getInstance();
+        $this->route();
+    }
+
+    /**
+     * 一个简单的路由，根据URL，将请求分发给各个模块
+     * @return [type] [description]
+     */
+    protected function route(){
+        # 模块名
+        $m = $this->Input->get( 'm' );
+        if( $m === false ){
+            $m = 'plc';
+        }
+        # 类名
+        $c = $this->Input->get( 'c' );
+        if( $c === false ){
+            $c = 'Home';
+        }        
+        # 方法
+        $f = $this->Input->get('f');
+        if( $f === false ){
+            $f = 'index';
+        }               
+
+        # 使用反射来实例化类
+        $objName="module\\$m" . "\\".$c;
+        $class = new \ReflectionClass($objName);
+        $obj = $class->newInstance();
+
+        # 执行方法，至此为止将程序的运行权交给模块
+        $method = new \ReflectionMethod( $obj, $f );
+        $method->invokeArgs( $obj, [] );
+    }
+
+    /**
+     * 获取系统配置项
+     * @param  boolean $item [description]
+     * @return [type]        [description]
+     */
+    function config( $item = false ){
+
+        if( $item === false ){
+            return $this->config;
+        }
+        if( isset( $this->config[ $item ] ) !== false ){
+            return $this->config[ $item ];
+        }else{
+            return null;
+        }
+    }
+
+    /**
+     * 获得输入对象
+     * @return [type] [description]
+     */
+    function input(){
+        return $this->Input;
+    }
+
+    /**
+     * 获得输出对象
+     * @return [type] [description]
+     */
+    function output(){
+        return $this->Output;
+    }
+
+    function view( $tplFileName, $data, $return = false  ){
+        return $this->output()->view( $tplFileName, $data, $return );
+    }
+
+    /**
+     * 获得数据模型对象
+     * @return [type] [description]
+     */
+    function model(){
+        return $this->Model;
+    }
+
+    /**
+     * 获得缓存对象
+     * @author 小诺心
+     * @param string $set 获取网站配置信息
+     * @return [type] [description]
+     */
+    function cache( $set = false ){
+        if ($set == 'set') {
+            $load = $this->Cache->load('set');
+            if ($load == false) {
+                $sql = "SELECT * FROM webset";
+                $data = $this->Model->get($sql);
+                $this->Cache->save($data, 'set', 1800);
+                return $data;
+            }
+            return $load;
+        }
+        return $this->Cache;
+    }
+
+    /**
+     * 重定义url模块入口，使用时必须写在init()之前
+     * @author 小诺心
+     * @return [type] [description]
+     */
+    function bind( $m, $c, $f ){
+        $_GET['m'] = $m;
+        $_GET['c'] = $c;
+        $_GET['f'] = $f;
+    }
+
+    /**
+     * 自动加载类文件
+     * @param  [type] $class [description]
+     * @return [type]        [description]
+     */
+    static function autoload( $class ){
+        $top=strpos($class,'TopClient');
+        $ali=strpos($class,'AlibabaAliqinFcSmsNumSendRequest');
+         if($top>0 or $ali>0){
+             return;
+         }
+            $file = PATH .'/'. $class . '.class.php';
+            $file = str_replace('\\', '/', $file);
+            if( !isset( self::$_map[ $class ] ) ){
+                if( !file_exists($file) ){
+                    die("{$file} 文件不存在!!!");
+                }            
+                include $file;
+            }
+        
+    }
+}

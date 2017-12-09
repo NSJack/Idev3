@@ -1,0 +1,19 @@
+<?php
+/**
+ * 注册登录页面
+ */
+namespace module\liulin;
+
+class WaresPage extends \core\Controller{
+    
+    function index(){
+        
+    }
+    //用户登录页面
+    function warespage(){
+        $data = array();
+        
+        $this->fw('/liulin/waresPage', $data);
+    }
+
+}

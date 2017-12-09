@@ -1,0 +1,118 @@
+<?php
+/**
+ * 注册登录页面
+ */
+namespace module\liulin;
+
+class Login extends \core\Controller{
+    
+    function index(){
+        
+    }
+    //用户注册页面
+    function register_zc(){
+        $data = array();
+        
+        $this->view('/liulin/register_zc', $data);
+    }
+    //注册验证流程
+    function register_zcsave(){
+        //获取用户名密码
+        $username  = $this->input()->post('username');
+        $password1 = $this->input()->post('password1');
+        $password2 = $this->input()->post('password2');
+        //非空判断
+        if(empty($username)||empty($password1)){
+            die('用户名或密码不能为空');
+            //echo "用户名或密码不能为空";
+        }
+        if ( $password1 != $password2 ) {
+            die('两次密码输入不一致'); 
+            //echo"两次密码输入不一致"; 
+        }
+        //如果数据库有相匹配的用户名，则用户名已存在        
+        $sql = "SELECT * FROM login_ll where username = '{$username}' limit 1";
+        $row = $this->model()->get($sql);
+        var_dump($row);exit;//这里有问题
+        if( $row ){
+            echo "用户名已存在";
+        }
+        $intime   = time();
+        $password = password_hash("password1", PASSWORD_DEFAULT)."\n";
+        $sql = "INSERT INTO login_ll( `username`,`password`,`intime` ) values( '{$username}','{$password}','{$intime}' )";
+        $uid = $this->model()->insert($sql);
+        if( $uid > 0 ){
+            echo "注册成功";
+            header("location:/?m=liulin&c=login&f=register");
+        } else {
+            echo "请联系管理员";
+        }
+    }
+/**
+    //阿里大于短信验证
+    function SMS() {
+        //引入阿里大于SDK
+        include "alidayu-openapi-php-sdk/TopSdk.php";
+
+        //$c = new TopClient;
+        //请填写自己的app key
+        $c->appkey = "23804144";
+        //请填写自己的app secret
+        $c->secretKey = "30bd839451be002c36ad4c7172bc2ca9";
+
+        $req = new AlibabaAliqinFcSmsNumSendRequest;
+        $req->setExtend("123456");
+        $req->setSmsType("normal");
+        $req->setSmsFreeSignName("改成自己的");
+        $req->setSmsParam("{\"name\": \"young\", \"code\": \"888888\", \"time\": \"2017年04月9日\"}");
+        //请填写需要接收的手机号码
+        $req->setRecNum("13540328530");
+        //短信模板id
+        $req->setSmsTemplateCode("改成自己的");
+
+        $resp = $c->execute($req);
+
+    }
+**/
+    //用户登录页面
+    function register(){
+        $data = array();
+        
+        $this->view('/liulin/regist', $data);
+    }
+    //后台验证流程
+    function register_save(){
+        //获取用户名和密码
+        $username = $this->input()->post('username');
+        $password = $this->input()->post('password');
+        //var_dump($password);exit;
+        if ( empty($username) ) { 
+            die('用户名不能为空');
+        }
+        if ( empty($password) ) { 
+            die('密码不能为空');
+            //echo "密码不能为空";
+        }
+        $sql = "SELECT * FROM login_ll where username = '{$username}'";
+        //var_dump($sql);exit();
+        $row = $this->model()->get($sql);
+        //var_dump($row);exit();
+        $hash = 'password';//这里有问题
+        var_dump($hash);
+        if (password_verify($password,$hash)) {
+         
+            echo "密码正确";
+        } else {  
+            //die('密码错误');
+            var_dump($password);exit();
+        }
+        $sql = "SELECT * FROM login_ll where username = '{$username}' and password = '{$password}'";
+        $rows = $this->model()->get($sql);
+        //判断用户输入的信息和数据库内的是否一致
+        if ( $rows == true ) {
+            echo "登录成功";
+        }else{
+            echo "用户名或密码错误";
+        }
+    }
+}

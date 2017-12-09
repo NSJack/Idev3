@@ -1,0 +1,180 @@
+<?php
+namespace core\lib;
+/**
+ * 文件上传
+ */
+class UpLoadDev3
+{
+
+    /**
+     * 文件上传功能 
+     * [string]   $name     前台表单的 name
+     *
+     * 以下是可选参数
+     * [string]   $path      图片保存的目录默认是以日期为名字的文件夹  以'/'结尾
+     * [string]   $new_name  上传图片的命名，默认是时间戳微秒数加密后和4位随机字符串组合
+     * 
+     */
+    public $new_name;
+    public $path;
+    
+
+    //上传图片的新名字默认是时间戳微秒数加密后和4位随机字符串组合
+    function randName($new_name)
+    {
+
+        if($new_name == "true")
+        {
+
+            //随机4位数字
+            $rand = rand(1000,9999);
+            //时间戳微秒数MD5加密
+            $t    = md5(microtime());
+            $new_name = $rand . $t;
+            
+
+        }else
+        {
+            //传入的自定义命名
+            $new_name = $new_name;
+        }
+        
+        return $new_name;
+        //$this->new_name = $new_name;
+    }
+
+
+    //默认图片保存在  data/upfile/ 下面的时间文件夹下面
+    function newPath($path)
+    {
+        
+        if($path == "true")
+        {
+
+            //默认的路径
+            $new_date = date("Y-m-d");
+            $new_path =  "data/upfile/" . $new_date ."/";
+
+        }else
+        {
+            //传入的自定义目录
+            $new_path =  $path;
+        }
+
+        //目录是否存在 不存在则创建目录
+        if(!file_exists($new_path)){  
+            mkdir($new_path,0777,true); 
+        }  
+
+        return $new_path;
+        //$this->path = $new_path;
+    }
+
+
+    //上传图片功能 必选 $name,  可选参数$path,$new_name 
+    function upLoad($name,$path=true,$new_name=true)
+    {
+        $file   =   $_FILES[$name];
+        $upload =   array();
+
+        //校验传入的 $name 是否存在
+        if($file == false)
+        {
+            $upload['error'] = ("传入的 name 不存在!");
+            return $upload;
+        }
+
+        
+
+        //上传是否有错误
+        if($file['error'] > 0)
+        {
+            //上传失败
+            $upload['error'] = ("请重新上传，错误代码为：" . $file['error']);
+            return $upload;
+
+        }else
+        {
+
+            //图像上传最大字节1MB
+            $upload_size = 1000000;
+
+            //上传图片的字节
+            $file_size = $file['size'];
+
+            if(  $file_size > $upload_size )
+            {
+                //上传图片超过限制
+                $upload['error'] = ( "上传图片超过限制" );
+                return $upload;
+            }
+        
+            //获取上传图片的后缀名
+            $ext = strtolower(pathinfo($file['name'],PATHINFO_EXTENSION));
+
+            //允许的后缀名
+            $allow_ext =array('png','gif','jpg','jpeg');
+
+            //MIME判断文件类型
+            /*$fi = new finfo(FILEINFO_MIME_TYPE); 
+            $mime_type = $fi->file($file['tmp_name']); 
+            if( $mime_type != 'image/jpeg')
+            {
+                //判断失败
+                $upload['error'] = ("上传文件类型不合法");
+                return $upload;
+            }*/
+
+
+
+            
+            //上传图片的新名
+            $new_name = $this -> randName($new_name);
+
+            //上传图片的新名（带后缀名）
+            $new_loc_name = $new_name. '.' . $ext;
+
+            //上传图片新的路径
+            $new_path = $this -> newPath($path);
+
+            //图片的路径 move_uploaded_file 的第二个参数
+            $new_loc = $new_path.$new_loc_name;
+
+
+            if(in_array($ext,$allow_ext))
+            {
+                $is = move_uploaded_file($file["tmp_name"],$new_loc);
+                if( $is )
+                {
+                    //上传成功
+                    //return true; 
+                    echo "上传成功";
+
+                }else
+                {
+                    //上传失败
+                    $upload['error'] = ("请重新上传，错误代码为：" . $file['error']);
+                    return $upload;
+                }
+               
+            }else 
+            {
+                //后缀名不存在
+                $upload['error'] = (" 后缀名不存在,请添加后再上传 ");
+                return $upload;
+            }
+            
+        }
+
+        echo '<pre>';
+
+        $upload['newname']  =  $new_name;
+        $upload['ext']      =  $ext;
+        $upload['path']     =  $new_loc;
+        $upload['error']    =  0 ;
+        $upload['size']     =  $file_size ;
+        return $upload;
+
+    }
+
+}

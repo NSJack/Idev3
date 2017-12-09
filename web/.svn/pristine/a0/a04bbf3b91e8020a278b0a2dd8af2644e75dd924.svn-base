@@ -1,0 +1,13 @@
+<nav class="navbar navbar-default">
+  
+  	<div class="col-md-3"></div>
+  	<div class="col-md-9">
+	    <ul class="nav nav-tabs">
+		  <li role="presentation" class=""><a href="#">系统设置</a></li>
+		  <li role="presentation" class="active"><a href="#">商品</a></li>
+		  <li role="presentation" class=""><a href="#">用户</a></li>
+		  <li role="presentation" class=""><a href="#">管理员</a></li>
+		</ul>
+	</div>
+  
+</nav>

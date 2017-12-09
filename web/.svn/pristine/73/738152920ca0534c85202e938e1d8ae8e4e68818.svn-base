@@ -1,0 +1,92 @@
+<?php
+
+namespace module\jjuser;
+
+Class Reg extends \core\Controller{
+	//显示注册界面
+	function showReg(){
+
+		$data=array();
+		//这里应该用参数去拼接网址
+		$this->fw('/jjuser/reg',$data);
+	}
+	
+	//验证通过后的注册流程
+	function reg(){
+		$uname=$this->input()->post('uname');
+		$password=$this->input()->post('password');
+		$mobile=$this->input()->post('mobile');
+		$regTime=time();
+
+		//加密
+		$password=Password::encrypt($password);
+
+		$sql="insert into jj_user (uname,password,mobile,regtime) values ( '{$uname}','{$password}','{$mobile}',{$regTime} ) ";
+		$re = $this->model()->insert($sql);
+		
+		if($re){ 
+			//跳到首页
+			echo $this->output()->msg("注册成功","#");
+		}else{
+			echo $this->output()->msg("注册失败","#");
+		}
+	}
+
+	function onlyName(){
+		$uname=$this->input()->post('uname');
+		$sql="select * from jj_user where uname='{$uname}'";
+		$re=$this->model()->get($sql);
+		if($re){
+			echo json_encode( array('only'=>false) );
+		}else
+		{
+			echo json_encode( array('only'=>true) );
+		}
+	}
+
+	function uniqueChk(){
+		$field=$this->input()->post('field');
+		$value=$this->input()->post('value');
+
+		$sql="select * from jj_user where {$field}='{$value}'";
+		$re=$this->model()->get($sql);
+		if($re){
+			echo json_encode( array('only'=>false) );
+		}else
+		{
+			echo json_encode( array('only'=>true) );
+		}
+	}
+
+	function test(){
+		echo "test";
+	}
+
+	function addVerifyCode(){
+		$data=array();
+		$mobile=$this->input()->session('mobile');
+		$verifyCode=$this->input()->session('verifyCode');
+		$inttime=time();
+
+		$sql="insert into jj_verifyCode (mobile,verifyCode,inttime) values ({$mobile},{$verifyCode},{$inttime})";
+		$re = $this->model()->insert($sql);
+
+		$data['mobile']=$mobile;
+		$this->fw('/jjuser/reg',$data);
+	}
+}
+
+class Password{
+	const SALT='abc123';
+	//加密
+	public static function encrypt($password){
+		return hash('sha512',self::SALT . $password);
+	}
+
+	//$clear明文 ,$cipher 密文 
+	public static function verify($clear,$cipher){
+		//先把明文加密后，再判断是否和密文相等
+		return ($cipher==self::encrypt($clear));
+	}
+
+}

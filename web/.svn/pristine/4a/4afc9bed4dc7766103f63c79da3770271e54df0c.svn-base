@@ -1,0 +1,103 @@
+<?php
+
+/* 用户中心
+ * wsw/user
+ * vick-wang
+ */
+
+namespace module\wsw;
+
+class User extends \core\Controller
+{
+    function index()
+    {
+        $data = array();
+        
+        //查询语句
+        $sql = "SELECT * FROM wsw_user";
+        $rows = $this->model()->gets($sql);
+        
+        //保存在$rows里面
+        $data['rows'] = $rows;
+        $this->fw("/wsw/user",$data);
+    }
+    
+    function del()
+    {
+        $id = $this->input()->get('id');
+         
+        if($id > 0)
+        {
+            $sql = "DELETE FROM `wsw_user` WHERE (`id`='{$id}') LIMIT 1";
+           
+            $row = $this->model()->delete($sql);
+            if($row == true)
+            {
+                header("Location:http://ldev2.sodevel.com/?m=wsw&c=User&f=index#profile");
+            }
+           // exit("成功");
+        }
+    }
+    
+    function save()
+    {
+        $data = array();
+        
+        //获取URL传递过来的id
+        $id = $this->input()-> get('id');
+        
+        //修改
+        if($id < 0)
+        {
+            //id不能小于0
+            exit('非法id');
+        }else
+        {
+            //查询这个id下的所有信息
+            $sql = "SELECT * FROM wsw_user WHERE id = '{$id}'";
+            $row = $this->model()->get($sql);
+            $data['row'] = $row; 
+           
+            //获取表单post来的数据
+            $name = $this->input()->post('name');
+            $tel = $this->input()->post('tel');
+            $password1 = $this->input()->post('password1');
+            $password2 = $this->input()->post('password2');
+
+            //表单不能为空
+            if(empty($name) || empty($tel) || empty($password1) || empty($password2))
+            {
+                //exit("提交数据不能为空!");
+            }
+            
+            //2次密码是否一致
+            
+            if($password1 !== $password2)
+            {
+                exit("2次密码不一致");
+            }else
+            {
+                $password = md5($password1);
+            }
+            
+            if(is_array($row))
+            {
+                $this->fw("/wsw/admin_save",$data);
+                //修改数据
+                $sql = "UPDATE wsw_user SET name = '{$name}',tel ='{$tel}',password='{$password}' WHERE id = '{$id}' LIMIT 1";
+                // var_dump($sql);
+                $row_save = $this->model()->update($sql);
+
+
+                header("Location:http://ldev2.sodevel.com/?m=wsw&c=User&f=index");
+             
+            }
+            
+            
+            
+           
+        }
+       
+         
+    }
+}

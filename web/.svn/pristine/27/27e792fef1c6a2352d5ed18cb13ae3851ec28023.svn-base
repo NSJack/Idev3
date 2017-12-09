@@ -1,0 +1,12 @@
+<?php
+
+namespace module\admin;
+
+Class Index extends \core\Controller{
+
+	function home(){
+		$data=array();
+		 $this->afw('/admin/main',$data);
+	}
+	
+}

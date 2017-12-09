@@ -1,0 +1,309 @@
+<!---注册页面----->
+
+
+<script>
+
+$(document).ready(function(){
+ //开关  
+    var ok1 = false;    //用户名
+    var ok2 = false;    //手机
+    var ok3 = false;    //验证码
+    var ok4 = false;    //密码
+    var ok5 = false;    //确认密码
+    
+//用户名提示
+    $("#name").focus(function(){
+        $("#checkname").html("用户名应该字母开头4-16").css("color",'#22ac38');
+    });
+
+//密码提示
+    $("#tel").focus(function(){
+        $("#checktel").html("请输入11位手机号码").css("color",'#22ac38');
+    });
+    
+
+//密码提示
+    $("#password1").focus(function(){
+        $("#checkpassword1").html("密码应该字母开头4-16").css("color",'#22ac38');
+    });
+
+
+
+//Ajax用户名验证
+
+    $("#name").blur(function(){
+        $.ajax({
+            url:"/?m=user&c=Register&f=checkname",
+            data:{"user":$(this).val()},
+            type:"get",
+            success:function(data)
+            {
+                switch(data)
+                {
+                    case "1":
+                        $("#checkname").html("用户名不能为空!").css("color",'red');
+                        $("#checkname").parent().addClass('has-error');
+                        break;
+                    case "2":
+                        $("#checkname").html("用户名不合法!").css("color",'red');
+                        $("#checkname").parent().addClass('has-error');
+                        break;
+                    case "3":
+                        $("#checkname").html("用户名已存在!").css("color",'red');
+                        $("#checkname").parent().addClass('has-error');
+                        break;
+                    case "4":
+                        $("#checkname").html("用户名不正确!").css("color",'red');
+                        $("#checkname").parent().addClass('has-error');
+                        break;
+                    case "5":
+                        $("#checkname").html("用户名可以使用").css("color",'#22ac38');
+                        $("#checkname").parent().removeClass('has-error').addClass("has-success");
+                        ok1 = true;  //成功
+                }
+            }
+        });
+    });
+
+
+
+
+//Ajax手机验证
+    $("#tel").blur(function(){
+        $.ajax({
+            url:"/?m=user&c=Register&f=checktel",
+            data:{"cktel":$(this).val()},
+            type:"get",
+            success:function(data)
+            {
+                
+                switch(data)
+                {
+                    case "1":
+                        $("#checktel").html("电话号不能为空!").css("color",'red'); 
+                        $("#checktel").parent().addClass('has-error');
+                        $("#btcode").attr("disabled",true);
+                        break;
+                    case "2":
+                        $("#checktel").html("请填写正确的电话号码!").css("color",'red');
+                        $("#checktel").parent().addClass('has-error');
+                        $("#btcode").attr("disabled",true);
+                        break;
+                    case "3":
+                        $("#checktel").html("电话号已经被注册!").css("color",'red');
+                        $("#checktel").parent().addClass('has-error');
+                        $("#btcode").attr("disabled",true);
+                        break;
+                    case "4":
+                        $("#checktel").html("").css("color",'#22ac38');
+                        $("#checktel").parent().removeClass('has-error').addClass("has-success");
+                        $("#btcode").attr("disabled",false);
+                        ok2 = true;
+                }
+            }
+        });
+    });
+
+
+//Ajax点击发送按钮验证码功能
+    $("#btcode").click(function(){
+        
+        $.ajax({
+            url:"/themes/tpl/user/ali.php",
+            type:"post",
+            data:{
+                name:$("#name").val(),
+                tel:$("#tel").val(),
+                code:$("#code").val()
+            },
+            success:function(data)
+            {
+                console.log(data);
+            }
+        });
+        
+    });
+
+
+
+
+//Ajax验证码判断
+    $("#code").blur(function(){
+        
+        $.ajax({
+            url:"/?m=user&c=Register&f=checkcode",
+            type:"get",
+            data:{
+                name:$("#name").val(),
+                tel:$("#tel").val(),
+                code:$("#code").val()
+            },
+            success:function(data)
+            {
+                //$("#checkcode").html(data).css("color",'#22ac38');
+                
+                    switch(data)
+                    {
+                        case "1":
+                            $("#checkcode").html("验证码错误").css("color",'red');
+                            $("#checkcode").parent().addClass('has-error');
+                            break;
+                        case "2":
+                            $("#checkcode").html("请填写验证码").css("color",'red');
+                            $("#checkcode").parent().addClass('has-error');
+                            break;
+                        case "3":
+                            $("#checkcode").html("").css("color",'#22ac38');
+                            $("#checkcode").parent().removeClass('has-error').addClass("has-success");
+                            ok3 = true;
+
+                    }
+                
+            }
+        });
+        
+    });
+
+
+//点击发送    
+
+    $("#btcode").click(function(){
+        //alert("验证码已发送，请注意查收.");
+        var count = 5;
+        var vick = setInterval(t,1000);
+
+        function t(){
+            $("#btcode").attr("disabled",true);
+            $("#btcode").html(count+"秒");
+            if(count == 0){
+                $("#btcode").html("重新发送").removeAttr("disabled");
+                clearInterval(vick);
+            }
+            count--;
+        }
+    });
+
+
+
+//密码验证
+    $("#password1").blur(function(){
+       var pwdstr = $("#password1").val();
+       var ret = /^[a-zA-Z][a-zA-Z0-9]{3,15}$/;
+       if(ret.test(pwdstr)){
+            $("#checkpassword1").html("").css("color",'#22ac38');
+            $("#checkpassword1").parent().removeClass('has-error').addClass("has-success");
+            ok4 = true;
+        }else{
+            $("#checkpassword1").html("密码格式不正确!").css("color",'red');
+            $("#checkpassword1").parent().addClass('has-error');
+        }
+       
+    });
+
+
+
+//判断2次密码是否一致  确认密码框
+    $("#password2").blur(function(){       
+        var psd1 = $("#password1").val();
+        var psd2 = $("#password2").val();
+        if( psd1 !== psd2 || psd2 == '' )
+        {
+            $("#checkpassword2").html("确认密码错误!").css("color",'red');
+            $("#checkpassword2").parent().addClass('has-error');
+        }else{
+            $("#checkpassword2").html("").css("color",'#22ac38');
+            $("#checkpassword2").parent().removeClass('has-error').addClass("has-success");
+            ok5 = true;
+        }
+    });
+    
+    
+    
+ //提交验证   
+    $('#submit').click(function(){
+        //alert(ok1);
+        if(ok1 == false || ok2 == false || ok3 == false || ok4 == false || ok5 == false)
+        {
+            alert('注册失败');
+            return false;
+        }else
+        {
+            alert('注册成功');
+        }
+    });
+
+
+
+});
+</script>
+
+
+
+<div class="col-sm-3 col-sm-offset-5">
+<button class="btn btn-info btn-lg" data-toggle="modal" data-target="#registerModal" >注册</button>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="padding-top:5%;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h2 class="modal-title text-center" id="myModalLabel">聚美优品用户注册</h2>
+      </div>
+      <div class="modal-body"  style="padding: 50px 15px;">
+       
+    <!--注册表单-->      
+        <div class="row vick_row">
+            <form class="form-horizontal" role="form" action="?m=user&c=register&f=add" method="post">
+                <!--<div class="col-sm-offset-6 col-sm-2 vick_top"><h4><a href="?m=user&c=login">已有账户前往登录</a><h4></div>-->
+                <div class="form-group ">
+                    <label for="name" class=" col-sm-3 control-label">姓名</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control required" id="name" name="name"   placeholder="请输入姓名">
+                    </div>
+                    <span id="checkname"></span>
+                </div>
+                
+               <div class="form-group">
+                    <label for="tel" class=" col-sm-3 control-label">手机</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control required" id="tel" name="tel"  placeholder="请输入手机号">
+                    </div>
+                    <span id="checktel"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="code" class=" col-sm-3 control-label" >验证码</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control required" id="code" name="code" placeholder="请输入验证码" style="width:50%;float:left;">
+                        <div class="btn btn-success" id="btcode" style="margin-left: 10%;" disabled="disabled">发送</div>
+                    </div>
+                    <span id="checkcode"></span>
+                </div>
+                <div class="form-group">   
+                    <label for="password1" class=" col-sm-3 control-label">密码</label>
+                    <div class="col-sm-5">
+                        <input type="password" class="form-control required" id="password1" name="password1"   placeholder="请输入密码">
+                    </div>
+                    <span id="checkpassword1"></span>
+                </div>
+                <div class="form-group">
+                    <label for="password2" class=" col-sm-3 control-label">确认密码</label>
+                    <div class="col-sm-5">
+                        <input type="password" class="form-control required" id="password2" name="password2"   placeholder="请确认密码">
+                    </div>
+                    <span id="checkpassword2"></span>
+                </div>
+                <div class=" col-sm-10 col-sm-offset-2 text-center">
+                    <button type="submit" class="btn btn-primary" id="submit">注册</button>
+                    <button class="btn btn-danger" data-dismiss="modal">取消</button>
+                </div>
+            </form>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<?php
+
+namespace module\jjuser;
+
+Class Login extends \core\Controller{
+	//显示注册界面
+	function index(){
+		$data=array();
+		$this->fw('/jjuser/login',$data);
+	}
+
+	function chkLogin(){
+		$account=$this->input()->post('account');
+		$password=$this->input()->post('password');		
+		$re=preg_match('/^1[34578]\d{9}$/', $account);
+
+		if($re==1){//如果输入的是一个11位数字，则表示是手机号
+			$field='mobile';
+		}else{//否则就是输入的用户名
+			$field='uname';
+		}
+
+	//先检查是否存在账号
+		$sql="select * from jj_user where {$field}='{$account}' ";
+		$row = $this->model()->get($sql);
+		$chkResult=array();
+		if(!$row){
+			$chkResult['err']="用户名不存在";
+			die(json_encode($chkResult));
+		}
+
+		$dbPassword=$row['password'];
+		$pwChk= Password::verify($password,$dbPassword);	
+		if(!$pwChk){
+			$chkResult['err']="密码错误";
+			die(json_encode($chkResult));
+		}
+
+		$chkResult['err']="通过验证";
+		echo(json_encode($chkResult));		
+		$this->input()->session('uid',$row['uid']);
+	}
+
+	function loginSucess(){
+		echo "登陆成功，UID为：";
+		echo $this->input()->session('uid');
+	}
+
+
+
+}	
+	
+class Password{
+	const SALT='abc123';
+	//加密
+	public static function encrypt($password){
+		return hash('sha512',self::SALT . $password);
+	}
+
+	//$clear明文 ,$cipher 密文 
+	public static function verify($clear,$cipher){
+		//先把明文加密后，再判断是否和密文相等
+		return ($cipher==self::encrypt($clear));
+	}
+
+}
+	

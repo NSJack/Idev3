@@ -1,0 +1,12 @@
+<?php
+
+namespace module\cart;
+class Cart extends \core\Controller {
+
+    //购物车列表页
+    function index() {
+        $data =array();
+        $this->view('/cart/cart',$data);
+
+    }
+}

@@ -1,0 +1,35 @@
+
+<div class="container" style="margin-top: 20px">
+	<div class="row">
+		<div class="col-md-1" style="border: 2px;background: gray">.col-md-3</div>
+
+		<div class="col-md-10" style="border: 2px;background: orange;">
+			<div id="left" style="width: 67%;height: 550px;background: blue;float: left;">
+				<div class="description" style="font-size: 20px;font-weight: 500;margin: 15px 20px;">
+					泰国人气护肤品牌——BeautyBuffet浓密牛奶洗面奶，洗出嫩滑“牛奶肌”！洁面也能如此“温柔”，氨基酸配方温和无刺激；牛奶蛋辅酶Q10双重滋养，肌肤洁净不紧绷！甜甜牛奶味~~不要贪杯，留给肌肤“喝”哟！弹、润、嫩、滑，肌肤尽享牛奶浴！
+				</div>
+				<div class="image" id="oneimage" >
+					<img src="/themes/tpl/liulin/image/001.jpg">
+				</div>
+			</div>
+			<div id="right" style="width: 33%;height: 550px;background: red;float: left;">
+				<div style="height: 150px;border: 2px solid black;">
+					<img src="/themes/tpl/liulin/image/001flag.jpg" style="width: 70px;height: 50px;margin: 50px 50px 50px auto;float: left;">
+					<div style="width: 70px;height: 50px;margin: 50px 50px 50px auto;float: left;">
+						<h4>泰国</h4>	
+						<h4>Thailand</h4>
+					</div>
+				</div>
+				<div>
+					<h1><span class="glyphicon glyphicon-jpy" style="margin-left: 30px;">￥34.9</span></h1>
+				</div>
+				<button type="button" class="btn btn-info" style="margin: 20px;width: 200px;height: 50px;">
+					<span style="font-size: 20px;">加入购物车</span>
+				</button>
+			</div>
+			<div style="background: #ccc;height: 200px;margin: 50px 0 50px 0;clear: both;"></div>
+		</div>
+
+		<div class="col-md-1" style="border: 2px;background: green">.col-md-3</div>
+	</div>
+</div>

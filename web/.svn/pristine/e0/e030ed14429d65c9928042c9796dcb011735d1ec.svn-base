@@ -1,0 +1,55 @@
+<?php
+/* 
+ * 用户登录验证
+ * /user/login
+ * vick-wang
+ */
+
+namespace module\user;
+
+class Login extends \core\Controller
+{
+    //登录页面
+    function index()
+    {
+        $data = array();
+        $this-> fw("/user/login",$data);
+    }
+    
+    //表单提交过来的操作
+    function save()
+    {
+        
+        //获取表单post过来的数据
+       $username    = $this->input()->post('name');
+       $password    = md5($this->input()->post('password'));
+      
+       //查询数据库用户名密码是否存在
+       $sql = "SELECT * FROM user WHERE name = '{$username}' and password = '{$password}' LIMIT 1";
+      
+/*select 邮箱字段,手机号字段 from 表名 where （邮箱字段 = 接收到的用户名 or 手机号字段 = 接收到的用户名） limit 1*/
+       //获取到用户信息
+       $row = $this->model()->get($sql);
+       
+
+        if(is_array($row) == true)
+        {
+            //登录成功，写入session
+             $_SESSION['id'] = $row['id'];
+
+             //最新登录时间
+             $updatetime = time();
+             $session_id = $row['id'];
+             $sql = "UPDATE user SET `updatetime` = '{$updatetime}' WHERE id = '{$session_id}' LIMIT 1";
+             $this->model()->update($sql);
+
+             //跳转到用户中心
+             $this->output()->redirect('/?m=user&c=User&f=index');
+         } else 
+         {
+             //登录失败,跳转到登录界面
+             $this->output()->redirect('/?m=user&c=Login&f=index');
+         }
+        
+    }   
+}

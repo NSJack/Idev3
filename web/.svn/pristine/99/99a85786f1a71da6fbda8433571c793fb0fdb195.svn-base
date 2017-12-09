@@ -1,0 +1,212 @@
+<script type="text/javascript">
+
+function check(){
+			//提交表单的验证
+			var username  = $("#username").val();
+			var password  = $("#password").val();
+			var password2 = $("#password2").val();
+			var phone 	  = $("#phone").val();
+			var phone1 	  = $("#phone1").val();
+			//正则表达式，验证各个字段是否符合规则
+			var user_reg = /^[A-Za-z0-9_]{6,18}$/;
+			var tel   = /^1[0-9]{10}$/;
+			var tel1   = /^[0-9]{4}$/;
+			//各字段如果有一个为空，则不提交表单
+			if (username.length<1 || password<1 || password2<1 || phone<1 || phone1<1) {
+				$("#sub_err").html("请完整填写表单");
+				return false;
+			}//用户名不合法
+			if ( !user_reg.test(username) ) {
+				$("#sub_err").html("请输入由数字、字母和下划线组成的6-18位用户名");
+				return false;
+			}//密码是否一致
+			if( password != password2){
+				$("#password2_err").html("密码不一致");
+			}//手机号格式不正确
+			if( !tel.test(phone) ){
+				$("#sub_err").html("请填写正确的手机号码");
+				return false;
+			}//验证码不正确
+			if( !tel1.test(phone1) ){
+				$("#sub_err").html("请填写正确的验证码");
+				return false;
+			}
+
+			return true;
+		}
+	//HTML执行完之后再执行这段代码
+	$(document).ready(function(){
+		//用户名是否合法
+		$("#username").blur(function(){
+			var username  = $("#username").val();
+			var user_reg = /^[a-zA-z]\w{6,18}$/;
+			//var data = [];
+			if ( !user_reg.test(username) ) {
+				$("#username_err").html("请输入由数字、字母和下划线组成的6-18位用户名,用户名必须以字母开头");
+			}else {//用户名唯一性的AJAX验证
+				//var value = $("#username").val();
+				$.ajax({
+					//请求的URL
+					url:"?m=liulin&c=login&f=register_username",
+					//请求的类型
+					type:'post',
+					//同步或异步
+					async:true,
+					//执行之前先执行
+					beforeSend:function(){
+						console.log("准备发起请求");
+					},
+					//是否缓存此页面
+					cache:false,
+					//请求完成后执行
+					complete:function(){
+						console.log("请求完成");
+					},
+					//向服务器端发送数据
+					data:{'username':username},
+					//服务器返回的数据类型
+					dataType:'json',
+					//错误执行
+					error:function(obj,err,errobj){
+						console.log("error:",err);
+					},
+					//成功执行
+					success:function( data ){	
+						console.log(data);
+						if( !data.status ){
+							console.log(data.status);
+							//console.log(data);
+							$("#username_err").html("用户名已被占用");
+						}else{
+							$("#username_err").html("用户名可用");
+						}
+					},
+					timeout:5000,
+				});
+			}
+		});
+		//密码是否符合规则
+		$("#password").blur(function(){
+			var password  = $("#password").val();
+			var pwd_reg  = /^[a-zA-z0-9_@+-]{6,20}$/;
+			var pwd_reg1  = /^[0-9]{6,20}$/;
+			var pwd_reg2  = /^[a-zA-Z0-9]{6,20}$/;
+			var pwd_reg3  = /^[a-zA-z0-9_@+-]{6,20}$/;
+			//判断用户名是否合法
+			if( !pwd_reg.test(password) ){
+				$("#password_err").html("请输入6-18位由数字和字母组成的密码");
+			}//如果用户名由纯数字组成的话，提示密码强度：弱
+			else if(pwd_reg1.test(password)){
+				$("#password_err").html("密码强度：弱");
+			}//如果用户名由纯数字和字母组成的话，提示密码强度：中
+			else if(pwd_reg2.test(password)){
+				$("#password_err").html("密码强度：中");
+			}//如果用户名由纯数字和字母和特殊字符组成的话，提示密码强度：强
+			else if(pwd_reg3.test(password)){
+				$("#password_err").html("密码强度：强");
+			}//不会执行
+			else{
+				$("#password_err").html("");
+			}
+		});
+		//两次密码是否输入一致
+		$("#password2").blur(function(){
+			var password  = $("#password").val();
+			var password2 = $("#password2").val();
+			if( password != password2){
+				$("#password2_err").html("密码不一致");
+			}else{
+				$("#password2_err").html("");
+			}
+		});
+		//手机号是否合法
+		$("#phone").blur(function(){
+			var phone = $("#phone").val();
+			var tel   = /^1[0-9]{10}$/;
+			if( !tel.test(phone) ){
+				$("#phone_err").html("请输入正确的手机号");
+			}else{
+				$("#phone_err").html("");
+			}
+		});
+		//验证码是否合法
+		$("#phone1").blur(function(){
+			var phone1 = $("#phone1").val();
+			var tel1   = /^[0-9]{4}$/;
+			if( !tel1.test(phone1) ){
+				$("#phone1_err").html("请输入正确的验证码");
+			}else{
+				$("#phone1_err").html("");
+			}
+		});
+
+
+	});
+</script>
+
+
+<div class="row">
+<div class="col-md-3"></div>
+<div class="col-md-6" style='height: 500px;'>
+	<div class="panel panel-success">
+	<div class="panel-heading text-center font-weight" style="font-size:20px;"><b>用户注册中心</b></div>
+		<div class="panel-body">
+			<form action="/?m=liulin&c=login&f=register_erlsave" method="post" onsubmit="return check();">
+				<table style="height: 100%;margin: 10px auto;">
+					<tr>
+						<td class="text-right" style="height: 50px;">用户名：</td>
+						<td class="text-center">
+							<input type="text" class="form-control" id="username" name="username"  value=""placeholder="请输入账号">
+							<span id="username_err"></span>
+						</td>
+						<td class="text-left"></td>
+					</tr>
+					<tr>
+						<td class="text-right" style="height: 50px;">设置密码：</td>
+						<td class="text-center">
+							<input type="password" class="form-control" id="password" name="password" placeholder="请输入密码" value="" />
+							<span id="password_err"></span>
+						</td>
+					</tr>
+		            <tr>
+						<td class="text-right" style="height: 50px;">确认密码：</td>
+						<td class="text-center">
+							<input type="password" class="form-control" id="password2" name="password2" placeholder="请再次输入密码" value="" />
+							<span id="password2_err"></span>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right" style="height: 50px;">手机号：</td>
+						<td class="text-center">
+							<input type="text" class="form-control" id="phone" name="phone" placeholder="请输入手机号码" value="" />
+							<span id="phone_err"></span>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right" style="height: 50px;">验证码：</td>
+						<td class="text-center">
+							<input type="text" class="form-control" id="phone1" name="phone1" placeholder="请输入短信验证码" value="" />
+							<span id="phone1_err"></span>
+						</td>
+						<td class="text-center" style="height: 70px;">
+							<button type="button" class="button button-btn-default" name="send">
+								<a href='?m=liulin&c=login&f=SMS' >发送验证码</a>
+							</button>             
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td class="text-center" style="height: 70px;">
+							<button type="submit" class="btn btn-default">注册</button>
+		                    <a href='?m=liulin&c=login&f=register' class="btn btn-default">登录</a>
+		                    <p><span id="sub_err"></span></p>
+						</td>
+						<td>&nbsp;</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+<div class="col-md-3" style='border:0px solid #ccc;height: 10px;'></div>
+</div>
+</div>

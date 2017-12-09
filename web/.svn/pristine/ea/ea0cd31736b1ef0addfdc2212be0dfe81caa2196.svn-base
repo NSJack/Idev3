@@ -1,0 +1,244 @@
+<?php
+
+namespace module\rocinante;
+class user extends \core\Controller{
+
+	const SALT = 'WoLeG';
+
+	function user_login(){
+		$data = array();
+		$this->fw('/rocinante/user_login',$data);
+	}
+
+	function user_checkin(){
+		$data = array();
+		// dump($_POST);
+		if(isset($_POST['username'])){
+			$username = $this->input()->post('username');
+			$password = $this->input()->post('password');
+			if(empty($username) || empty($password)){
+				echo "用户名和密码均不得为空！";
+				exit();
+			}
+			$password = $this->phash($password);
+			// $mobile = $this->input()->post('mobile');
+			// $email = $this->input()->post('email');
+			// $reg_time = time();
+			$sql = "SELECT `uid`,`username`,`password` FROM `qzw_user` WHERE `username` = '$username' AND `password` = '$password'";
+			// echo $sql;
+			$result = $this->model()->get($sql);
+			if($result){
+				echo "用户登录成功";
+				$this->input()->session('uid',$result['uid']);
+				$this->input()->session('username',$result['username']);
+				$this->fw( '/plc/index',$data );
+			}else{
+				echo "用户登录失败";
+			}
+		}
+	}
+
+	function is_user_login(){
+		$uid = $this->input()->session('uid');
+		$username = $this->input()->session('username');
+		$sql = "SELECT `uid`,`username`  FROM `qzw_user` WHERE `username` = '$username' AND `uid` = '$uid'";
+		$result = $this->model()->get($sql);
+		if($result){
+			echo "用户已经登录，用户ID为：".$uid." 用户名为：".$username;
+		}else{
+			echo "用户未登录，或session信息有误！";
+		}
+	}
+
+	function user_reg(){
+		$data = array();
+		$this->fw('/rocinante/user_reg',$data);
+	}
+
+	function user_insert(){
+		$data = array();
+		// dump($_POST);
+		if(isset($_POST['username'])){
+			$username = $this->input()->post('username');
+			if(!$this->is_user_exist($username)){
+				$password = $this->input()->post('password');
+				$password1 = $this->input()->post('password1');
+				if($password != $password1){
+					echo "两次录入的密码不一致！";
+					exit();
+				}
+				$mobile = $this->input()->post('mobile');
+				$sms_code = $this->input()->post('sms_code');
+				$email = $this->input()->post('email');
+				if(empty($username) || empty($password) ||empty($mobile) ||empty($sms_code)){
+					echo "用户名,密码,手机号，验证码均不得为空！";
+					exit();
+				}
+				if(!$this->is_sms_code($mobile,$sms_code)){
+					echo "手机号或验证码有误！";
+					exit();
+				}
+				$password = $this->phash($password);
+				$reg_time = time();
+				$sql = "INSERT INTO `qzw_user` (`username`,`password`,`mobile`,`email`,`reg_time`) VALUES('$username','$password','$mobile','$email',$reg_time)";
+				// echo $sql;
+				$uid = $this->model()->insert($sql);
+				if($uid){
+					echo "用户注册成功";
+					return $this->fw( '/plc/index',$data );
+				}else{
+					echo "用户注册失败";
+				}
+			}else{
+				die('此用户名已经注册过了！');
+			}			
+		}
+	}
+
+	function is_user_exist($username, $mobile=null){
+		if($mobile === null){
+			$sql = "SELECT * FROM `qzw_user` WHERE `username` = '$username'";
+		}else{
+			$sql = "SELECT * FROM `qzw_user` WHERE `username` = '$username' AND `mobile` = '$mobile'";
+		}		
+		$result = $this->model()->get($sql);
+		if($result){
+			return $result['uid'];
+		}else{
+			return false;
+		}
+	}
+
+	function is_user_exist_ajax(){
+		$username = $this->input()->post('username');
+		$sql = "SELECT * FROM `qzw_user` WHERE `username` = '$username'";
+		$result = $this->model()->get($sql);
+		$user_exist = array();
+		if($result){
+			$user_exist['status'] = "yes";
+			echo json_encode($user_exist['status']);
+		}else{
+			$user_exist['status'] = "no";
+			echo json_encode($user_exist['status']);
+		}
+	}
+
+	function sms_sent(){
+		$mobile = $this->input()->post('mobile');
+		// $mobile = '18723490263';
+		if(empty($mobile)) {
+			die(json_encode('fail. mobile should not be empty!'));
+		}
+
+		// $sms = new \core\lib\Sms();
+		// $sms->sendSms('23774817','ded34c95b310d8eae33e91a806aebf45','王世伟','SMS_63260253','123',$sms_code,$mobile);
+
+		include(PATH . '/module/rocinante/smsCode.class.php');
+		$sms = new \smsCode($mobile);
+		$sms_code = $sms->getSmsCode();
+		$sent_time = time();
+		$sql = "INSERT INTO `qzw_sms` (`mobile`,`smscode`,`sent_time`) VALUES('$mobile','$sms_code',$sent_time)";
+		$sms_id = $this->model()->insert($sql);
+		if($sms_id){
+			echo json_encode('success');
+		}else{
+			echo json_encode('fail. database insert error.');
+		}
+	}
+
+	function is_sms_code($mobile,$sms_code){
+		$current = time();
+		$sql = "SELECT * FROM `qzw_sms` WHERE `mobile` = '$mobile' AND `smscode` = '$sms_code'  AND `sent_time` > $current - 60*5";
+		$result = $this->model()->get($sql);
+		if($result){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	function is_sms_code_ajax(){
+		$mobile = $this->input()->post('mobile');
+		$sms_code = $this->input()->post('sms_code');
+		$current = time();
+		$sql = "SELECT * FROM `qzw_sms` WHERE `mobile` = '$mobile' AND `smscode` = '$sms_code' AND `sent_time` > $current - 60*5";
+		$result = $this->model()->get($sql);
+		$sms_code_verify = array();
+		if($result){
+			$sms_code_verify['status'] = "yes";
+			echo json_encode($sms_code_verify['status']);
+		}else{
+			$sms_code_verify['status'] = "no";
+			echo json_encode($sms_code_verify['status']);
+		}
+	}
+
+	function phash($password){
+		return hash('sha512',self::SALT.$password);
+	}
+
+	function pverify($password,$hash){
+		return (self::phash($password) == $hash);
+	}
+
+	function user_reset(){
+		$data = array();
+		$this->fw('/rocinante/user_reset',$data);
+	}
+
+	function user_revise(){
+		$data = array();
+		if(isset($_POST['username'])){
+			$username = $this->input()->post('username');
+			$mobile = $this->input()->post('mobile');
+			$sms_code = $this->input()->post('sms_code');
+			if(empty($username) || empty($mobile) || empty($sms_code)){
+				echo "用户名,手机号,验证码均不得为空！";
+				exit();
+			}
+			if(!($uid = $this->is_user_exist($username,$mobile))){
+				echo "用户名与手机号匹配错误！";
+				exit();
+			}else{
+				$data['uid'] = $uid;
+				$data['username'] = $username;
+			}
+			if(!$this->is_sms_code($mobile,$sms_code)){
+				echo "手机号或验证码有误！";
+				exit();
+			}
+
+			
+			$this->fw( '/rocinante/user_revise',$data );
+		}
+	}
+
+	function user_amend(){
+		$data = array();
+		if(isset($_POST['username'])){
+			$username = $this->input()->post('username');
+			$uid = $this->input()->post('uid');
+			$password = $this->input()->post('password');
+			$password1 = $this->input()->post('password1');
+			if($password != $password1){
+				echo "两次录入的密码不一致！";
+				exit();
+			}
+			if(empty($username) || empty($password)){
+				echo "用户名,密码均不得为空！";
+				exit();
+			}
+			$password = $this->phash($password);
+			$sql = "UPDATE `qzw_user` SET `password` = '$password' WHERE `username` = '$username' AND `uid` = '$uid'";
+			$result = $this->model()->update($sql);
+			if($result){
+				echo "密码修改成功";
+				return $this->fw( '/rocinante/user_login',$data );
+			}else{
+				echo "密码修改失败";
+			}
+
+		}
+	}
+
+}

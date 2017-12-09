@@ -1,0 +1,66 @@
+<div class="container" style="margin-top: 60px">
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title">用户注册</h3>
+			</div>
+
+			<div class="panel-body">
+
+				<form action="/?m=wpk_user&c=Inuser&f=check" method="post" name="username">
+
+					<div class="form-group">
+						<label for="exampleInputPassword1">用户名</label><?php echo str_repeat('&nbsp', 10) ?>
+						<span id="notice_point_1"></span>
+						<input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名">
+					</div>
+
+					<div class="form-group">
+						<label for="exampleInputPassword1">密码</label><?php echo str_repeat('&nbsp', 10) ?>
+						<span id="notice_point_2"></span>
+						<input type="password" class="form-control" id="password" name="password" placeholder="请输入密码">
+					</div>
+
+					<div class="form-group">
+						<label for="exampleInputPassword1">再次输入密码</label><?php echo str_repeat('&nbsp', 10) ?>
+						<span id="notice_point_3"></span>
+						<input type="password" class="form-control" id="repassword" name="repassword" placeholder="请再次输入密码">
+					</div>
+
+					<div class="form-group">
+						<label for="exampleInputPassword1">手机号</label><?php echo str_repeat('&nbsp', 10) ?>
+						<button type="button" class="btn btn-info btn-xs" id="yzm">发送验证码</button><?php echo str_repeat('&nbsp', 10) ?>
+						<span id="notice_point_4"></span>
+						<input type="text" class="form-control" id="usermobile" name="usermobile" placeholder="请输入手机号">
+					</div>
+
+					<div class="form-group">
+						<label for="exampleInputPassword1">手机验证码</label><?php echo str_repeat('&nbsp', 10) ?>
+						<span id="notice_point_5"></span>
+						<input type="text" class="form-control" id="yzm_code" name="yzm_code" placeholder="请输入手机验证码">
+					</div>
+
+					<div class="form-group">
+						<label for="exampleInputEmail1">邮件地址</label><?php echo str_repeat('&nbsp', 10) ?>
+						<span id="notice_point_6"></span>
+						<input type="email" class="form-control" id="email" name="email" placeholder="请输入邮件地址">
+					</div>
+
+					<div class="col-md-offset-4">
+						<button type="submit" class="btn btn-primary">注册</button><?php echo str_repeat('&nbsp', 20) ?>
+						
+					</div>
+
+				</form>
+
+			</div>
+		</div>
+
+
+
+
+		</div>
+	</div>
+</div>

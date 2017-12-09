@@ -1,0 +1,74 @@
+<!---修改密码-->
+
+<h3>修改密码</h3>
+
+<ul class="nav nav-tabs">
+    <li class="active">
+        <a href="#MobileVerif" data-toggle="tab">密码验证</a>
+    </li>
+    <li>
+        <a href="#PasswordVerif" data-toggle="tab">手机验证</a>
+    </li>
+</ul>
+
+<div class="tab-content">
+	<div class="vick_order_main tab-pane fade in active" id="MobileVerif">
+            <!----手机验证----->
+            <form class="form-horizontal col-sm-10 col-sm-offset-1" role="form" action="?m=user&c=userPassword&f=textPasswod" method="post" style="padding-top:8%;">
+
+                <div class="form-group">
+                    <label for="newPassword" class="col-sm-3 control-label">新密码</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="newPassword" name="newPassword"   placeholder="请输入新密码" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reNewPassword" class="col-sm-3 control-label">重复新密码</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="reNewPassword" name="reNewPassword"   placeholder="请确认新密码" >
+                    </div>
+                </div>
+
+                <div class="col-sm-8 col-sm-offset-4  text-center">
+                    <button type="submit" class="btn btn-primary" id="resetPasswordLogin">修改</button>
+                    <button class="btn btn-danger" type="reset">重置</button>
+                </div>
+
+            </form>
+            
+            
+	</div>
+	<div class="vick_order_main tab-pane fade" id="PasswordVerif">
+            
+            <form class="form-horizontal col-sm-10 col-sm-offset-1" role="form" action="?m=user&c=userPassword&f=textPasswod" method="post" style="padding-top:5%;">
+                
+                <div class="form-group">
+                    <label for="origTel" class="col-sm-3 control-label">电话号码</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="origTel" name="origTel" value="<?php echo $row['tel']; ?>"  disabled="disabled">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="newTelPassword" class="col-sm-3 control-label">新密码</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="newPassword" name="newTelPassword"   placeholder="请输入新密码" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reNewTelPassword" class="col-sm-3 control-label">重复新密码</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="reNewPassword" name="reNewTelPassword"   placeholder="请确认新密码" >
+                    </div>
+                </div>
+
+                <div class="col-sm-8 col-sm-offset-4  text-center">
+                    <button type="submit" class="btn btn-primary" id="resetPasswordLogin">修改</button>
+                    <button class="btn btn-danger" type="reset">重置</button>
+                </div>
+
+            </form>
+           
+	</div>
+</div>
+
